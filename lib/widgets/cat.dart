@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+
+class CatWidget extends StatefulWidget {
+   final Function(TapDownDetails)? onTapDown;
+  
+  const CatWidget({
+    super.key,
+   this.onTapDown,
+  });
+
+  @override
+  State<CatWidget> createState() => _CatWidgetState();
+}
+
+class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMixin {
+  double _catPosition = 0.0;
+  bool _isWalking = false;
+  bool _isFacingRight = true;
+  int _stepCounter = 0;
+  AnimationController? _walkController;
+  Animation<double>? _walkAnimation;
+  double? _targetPosition;
+
+  double _walkZoneLeft = 0.0;
+  double _walkZoneRight = 0.0;
+  double _walkZoneHeight = 0.0;
+  double _catBasePositionY = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initCatPosition());
+  }
+
+  void _initCatPosition() {
+    final screenSize = MediaQuery.of(context).size;
+    
+    _walkZoneLeft = screenSize.width * 0.29;
+    _walkZoneRight = screenSize.width * 0.7;
+    _walkZoneHeight = screenSize.height * 0.25;
+    _catBasePositionY = screenSize.height / 2 + 80;
+    _catPosition = (_walkZoneLeft + _walkZoneRight) / 2;
+
+    _walkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    setState(() {});
+  }
+
+  void _startWalking(double targetX) {
+    if (_isWalking || _walkController == null) return;
+
+    _targetPosition = targetX.clamp(_walkZoneLeft, _walkZoneRight);
+    _isFacingRight = _targetPosition! > _catPosition;
+
+    final distance = (_targetPosition! - _catPosition).abs();
+    final duration = Duration(milliseconds: (distance * 8).toInt());
+
+    _walkController?.duration = duration;
+    _walkAnimation = Tween<double>(
+      begin: _catPosition,
+      end: _targetPosition!,
+    ).animate(_walkController!)
+      ..addListener(() {
+        setState(() {
+          _catPosition = _walkAnimation?.value ?? _catPosition;
+          _stepCounter = (_walkController!.value * 5).toInt() % 2;
+        });
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          setState(() => _isWalking = false);
+        }
+      });
+
+    setState(() => _isWalking = true);
+    _walkController?.forward(from: 0);
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    
+    final localPosition = box.globalToLocal(details.globalPosition);
+
+    if (localPosition.dx >= _walkZoneLeft &&
+        localPosition.dx <= _walkZoneRight &&
+        localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 &&
+        localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2) {
+      _startWalking(localPosition.dx);
+    }
+  }
+
+  String _getCatImage() {
+    if (!_isWalking) return 'assets/images/catIsSitting.png';
+    
+    return _isFacingRight
+        ? (_stepCounter == 0 
+            ? 'assets/images/step1Right.png' 
+            : 'assets/images/step2Right.png')
+        : (_stepCounter == 0 
+            ? 'assets/images/step1Left.png' 
+            : 'assets/images/step2Left.png');
+  }
+
+  @override
+  void dispose() {
+    _walkController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      child: Stack(
+        children: [
+          Positioned(
+            left: _catPosition - 50,
+            top: _catBasePositionY - 50,
+            child: Image.asset(
+              _getCatImage(),
+              width: 100,
+              height: 100,
+            ),
+          ),
+          // Отладочная зона хождения 
+          Positioned(
+            left: _walkZoneLeft,
+            top: _catBasePositionY - _walkZoneHeight / 2,
+            child: Container(
+              width: _walkZoneRight - _walkZoneLeft,
+              height: _walkZoneHeight,
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color.fromARGB(0, 244, 67, 54), width: 2),
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
