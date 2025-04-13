@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 class CatWidget extends StatefulWidget {
-   final Function(TapDownDetails)? onTapDown;
-  
+  final Function(TapDownDetails)? onTapDown;
+  final bool isSleeping;
+
   const CatWidget({
     super.key,
-   this.onTapDown,
+    this.onTapDown,
+    required this.isSleeping,
   });
 
   @override
   State<CatWidget> createState() => _CatWidgetState();
 }
 
-class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMixin {
+class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMixin
+{
   double _catPosition = 0.0;
   bool _isWalking = false;
   bool _isFacingRight = true;
@@ -49,7 +52,7 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
   }
 
   void _startWalking(double targetX) {
-    if (_isWalking || _walkController == null) return;
+    if (_walkController == null) return;
 
     _targetPosition = targetX.clamp(_walkZoneLeft, _walkZoneRight);
     _isFacingRight = _targetPosition! > _catPosition;
@@ -81,27 +84,23 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
   void _handleTapDown(TapDownDetails details) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    
+
     final localPosition = box.globalToLocal(details.globalPosition);
 
-    if (localPosition.dx >= _walkZoneLeft &&
-        localPosition.dx <= _walkZoneRight &&
-        localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 &&
-        localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2) {
-      _startWalking(localPosition.dx);
-    }
-  }
+    // Проверяем вертикальную зону
+    final isInVerticalZone = localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 &&
+        localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2;
 
-  String _getCatImage() {
-    if (!_isWalking) return 'assets/images/catIsSitting.png';
-    
-    return _isFacingRight
-        ? (_stepCounter == 0 
-            ? 'assets/images/step1Right.png' 
-            : 'assets/images/step2Right.png')
-        : (_stepCounter == 0 
-            ? 'assets/images/step1Left.png' 
-            : 'assets/images/step2Left.png');
+    if (!isInVerticalZone) return;
+
+    // Явная обработка границ
+    if (localPosition.dx < _walkZoneLeft) {
+      _startWalking(_walkZoneLeft); // Идём к левой границе
+    } else if (localPosition.dx > _walkZoneRight) {
+      _startWalking(_walkZoneRight); // Идём к правой границе
+    } else {
+      _startWalking(localPosition.dx); // Идём к точке внутри зоны
+    }
   }
 
   @override
@@ -141,5 +140,18 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
         ],
       ),
     );
+  }
+
+  String _getCatImage() {
+    if (widget.isSleeping) return 'assets/images/CatSleep.png';
+    if (!_isWalking) return 'assets/images/catIsSitting.png';
+
+    return _isFacingRight
+        ? (_stepCounter == 0
+        ? 'assets/images/step1Right.png'
+        : 'assets/images/step2Right.png')
+        : (_stepCounter == 0
+        ? 'assets/images/step1Left.png'
+        : 'assets/images/step2Left.png');
   }
 }
