@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:game/services/audio_manager.dart';
+
 
 class CatWidget extends StatefulWidget {
   final Function(TapDownDetails)? onTapDown;
   final bool isSleeping;
+  final VoidCallback? onRunCompleted; // Добавляем новый callback
 
   const CatWidget({
     super.key,
     this.onTapDown,
     required this.isSleeping,
+    this.onRunCompleted, // Добавляем в конструктор
   });
 
   @override
   State<CatWidget> createState() => _CatWidgetState();
 }
 
-class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMixin
-{
+class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMixin {
+  late final AudioManager _audioManager;
   double _catPosition = 0.0;
   bool _isWalking = false;
   bool _isFacingRight = true;
@@ -29,9 +33,11 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
   double _walkZoneHeight = 0.0;
   double _catBasePositionY = 0.0;
 
+
   @override
   void initState() {
     super.initState();
+    _audioManager = AudioManager();
     WidgetsBinding.instance.addPostFrameCallback((_) => _initCatPosition());
   }
 
@@ -52,6 +58,8 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
   }
 
   void _startWalking(double targetX) {
+    _audioManager.playSfx('audio/tap.mp3');
+    _audioManager.playSfx('audio/meow.mp3');
     if (_walkController == null) return;
 
     _targetPosition = targetX.clamp(_walkZoneLeft, _walkZoneRight);
@@ -71,9 +79,15 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
           _stepCounter = (_walkController!.value * 5).toInt() % 2;
         });
       })
+
+
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           setState(() => _isWalking = false);
+          // Вызываем callback при завершении пробежки
+          if (widget.onRunCompleted != null) {
+            widget.onRunCompleted!();
+          }
         }
       });
 

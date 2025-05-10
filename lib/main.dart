@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:game/screens/main_screen.dart';
 import 'package:game/services/audio_manager.dart'; // Импорт аудио менеджера
+import 'package:audioplayers/audioplayers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// main.dart
+// main.dart
 class AppLifecycleObserver extends NavigatorObserver with WidgetsBindingObserver {
   final AudioManager _audioManager = AudioManager();
 
@@ -44,12 +47,15 @@ class AppLifecycleObserver extends NavigatorObserver with WidgetsBindingObserver
         _audioManager.stopBackgroundMusic();
         break;
       case AppLifecycleState.resumed:
-        _audioManager.playBackgroundMusic();
+      // Используем геттер currentTrack вместо прямого доступа к приватному полю
+        final currentTrack = _audioManager.currentTrack;
+        _audioManager.playBackgroundMusic(
+            isNight: currentTrack != null && currentTrack.contains('night')
+        );
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
-      // Дополнительные состояния при необходимости
         break;
     }
   }

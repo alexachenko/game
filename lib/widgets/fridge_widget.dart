@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+
 class FridgeWidget extends StatelessWidget {
   final int fishCount;
   final VoidCallback onClose;
   final Function(int) onFishTap;
+  final VoidCallback onEatFish; // Добавляем новый callback
 
   const FridgeWidget({
     super.key,
     required this.fishCount,
     required this.onClose,
     required this.onFishTap,
+    required this.onEatFish, // Добавляем в конструктор
   });
 
   @override
@@ -29,33 +32,68 @@ class FridgeWidget extends StatelessWidget {
             ),
           ),
 
-          // Полки холодильника
+          // Холодильник
           Center(
-            child: Image.asset(
-              fishCount > 0
-                  ? 'assets/images/fridge_with_fish.png'
-                  : 'assets/images/fridge_empty.png',
-              width: 500,
-              height: 600,
+            child: Stack(
+              children: [
+                Image.asset(
+                  fishCount > 0
+                      ? 'assets/images/fridge_with_fish.png'
+                      : 'assets/images/fridge_empty.png',
+                  width: 500,
+                  height: 600,
+                ),
+
+                // Табличка с количеством рыб
+                Positioned(
+                  top: 100,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Рыба: $fishCount',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Кнопка "Съесть рыбу"
+                if (fishCount > 0)
+                  Positioned(
+                    bottom: 100,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          onEatFish();
+                          onClose();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                        child: const Text(
+                          'Съесть рыбу',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-
-          // Области для нажатия на рыбок
-          if (fishCount > 0) ...[
-            Positioned(
-              left: screenSize.width / 2 - 100,
-              top: screenSize.height / 2 - 150,
-              child: GestureDetector(
-                onTap: () => onFishTap(1),
-                child: Container(
-                  width: 80,
-                  height: 50,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-            // Добавьте другие позиции для рыбок по аналогии
-          ],
         ],
       ),
     );
