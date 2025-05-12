@@ -3,18 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:game/screens/main_screen.dart';
 import 'package:game/services/audio_manager.dart'; // Импорт аудио менеджера
 import 'package:audioplayers/audioplayers.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:game/models/cat_state.dart'; // Убедитесь, что путь правильный
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Установка ориентации экрана
+  await Hive.initFlutter();
+  Hive.registerAdapter(CatStateAdapter());
+  await Hive.openBox('catStateBox'); // Убедитесь, что Box открыт
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
 
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -35,28 +42,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// main.dart
-// main.dart
+
 class AppLifecycleObserver extends NavigatorObserver with WidgetsBindingObserver {
   final AudioManager _audioManager = AudioManager();
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.paused:
-        _audioManager.stopBackgroundMusic();
-        break;
-      case AppLifecycleState.resumed:
-      // Используем геттер currentTrack вместо прямого доступа к приватному полю
-        final currentTrack = _audioManager.currentTrack;
-        _audioManager.playBackgroundMusic(
-            isNight: currentTrack != null && currentTrack.contains('night')
-        );
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-        break;
+    final box = Hive.box('catStateBox');
+    final catState = box.get('currentState') as CatState?;
+
+    if (state == AppLifecycleState.paused && catState != null) {
+      catState.lastClosedTime = DateTime.now();
+      box.put('currentState', catState);
     }
   }
 

@@ -37,9 +37,7 @@ class FridgeWidget extends StatelessWidget {
             child: Stack(
               children: [
                 Image.asset(
-                  fishCount > 0
-                      ? 'assets/images/fridge_with_fish.png'
-                      : 'assets/images/fridge_empty.png',
+                  'assets/images/fridge_with_fish.png',
                   width: 500,
                   height: 600,
                 ),
@@ -53,14 +51,16 @@ class FridgeWidget extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Color.fromRGBO(116, 77, 67, 0.5),
                         borderRadius: BorderRadius.circular(8),
+
                       ),
                       child: Text(
                         'Рыба: $fishCount',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -80,13 +80,17 @@ class FridgeWidget extends StatelessWidget {
                           onClose();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: Color.fromRGBO(116, 77, 67, 0.5),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
+                            side: BorderSide(color: Color.fromRGBO(131, 60, 78, 1))
                         ),
                         child: const Text(
                           'Съесть рыбу',
-                          style: TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

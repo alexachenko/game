@@ -1,35 +1,62 @@
+import 'package:hive/hive.dart';
+
+part 'cat_state.g.dart';
+
+@HiveType(typeId: 0)
 class CatState {
+  @HiveField(0)
   double food;
+
+  @HiveField(1)
   double sleep;
+
+  @HiveField(2)
   double game;
+
+  @HiveField(3)
   DateTime lastUpdated;
-  bool isSleeping = false; // Добавляем флаг сна
-  double sleepProgress = 0; // Прогресс увеличения сна
-  double sleepRecoveryRate = 25.0; // % в минуту
+
+  @HiveField(4)
+  bool isSleeping;
+
+  @HiveField(5)
+  double sleepProgress;
+
+  @HiveField(6)
+  double sleepRecoveryRate;
+
+  @HiveField(7)
+  DateTime? lastClosedTime;
+
+
+  @HiveField(8) // Новое поле для рыбок
+  int fishCount;
 
   CatState({
     required this.food,
     required this.sleep,
     required this.game,
     required this.lastUpdated,
+    this.isSleeping = false,
+    this.sleepProgress = 0,
+    this.sleepRecoveryRate = 25.0,
+    this.lastClosedTime,
+    this.fishCount = 0, // Инициализация
   });
 
   void updateStates(DateTime now) {
     final secondsPassed = now.difference(lastUpdated).inSeconds;
     if (secondsPassed <= 0) return;
 
-    final minutesPassed = secondsPassed / 60; // Дробное количество минут
+    final minutesPassed = secondsPassed / 60;
 
-    // Общее уменьшение показателей
-    final decayPerMinute = 100 / 4; // 25% в минуту
+    final decayPerMinute = 100 / 4;
     final decayAmount = decayPerMinute * minutesPassed;
 
     food = (food - decayAmount).clamp(0, 100);
     game = (game - decayAmount).clamp(0, 100);
 
-    // Особенная логика для сна
     if (isSleeping) {
-      // Увеличиваем сон, но не более 100%
       sleep = (sleep + sleepRecoveryRate * minutesPassed).clamp(0, 100);
     } else {
       sleep = (sleep - decayAmount).clamp(0, 100);
@@ -37,4 +64,29 @@ class CatState {
 
     lastUpdated = now;
   }
+
+  // В файле cat_state.dart
+  void calculateOfflineChanges(DateTime now) {
+    if (lastClosedTime == null) return;
+
+    final duration = now.difference(lastClosedTime!);
+    final minutesPassed = duration.inMinutes;
+
+    if (minutesPassed > 0) {
+      final decayRate = 5.0; // Скорость уменьшения показателей в минуту
+      final decayAmount = decayRate * minutesPassed;
+
+      food = (food - decayAmount).clamp(0, 100);
+      game = (game - decayAmount).clamp(0, 100);
+
+      // Сон уменьшается медленнее, если кот спал
+      sleep = isSleeping
+          ? (sleep - decayAmount * 0.5).clamp(0, 100)
+          : (sleep - decayAmount).clamp(0, 100);
+
+      lastUpdated = now;
+      lastClosedTime = null;
+    }
+  }
+
 }

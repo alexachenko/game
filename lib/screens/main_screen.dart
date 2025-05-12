@@ -6,6 +6,8 @@ import 'package:game/widgets/fridge_widget.dart';
 import 'package:game/services/audio_manager.dart';
 import 'package:game/models/cat_state.dart';
 import 'package:game/services/audio_manager.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
@@ -15,12 +17,13 @@ class TamagotchiScreen extends StatefulWidget {
   State<TamagotchiScreen> createState() => _TamagotchiScreenState();
 }
 
-class _TamagotchiScreenState extends State<TamagotchiScreen> {
+class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBindingObserver {
+  late Box catStateBox; // Добавляем Box для хранения состояния
   final AudioManager _audioManager = AudioManager();
   bool _isCatSleeping = false;
   bool _showFridge = false;
   bool _isFishing = false;
-  int fishNumbers = 3;
+  // int fishNumbers = 3;
   bool _showBackground = false;
   String _currentBackground = 'assets/images/background1.png';
   static const String roomBackground = 'assets/images/background1.png';
@@ -44,15 +47,17 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initHive();
     _audioManager.playBackgroundMusic(isNight: false); // Явно указываем дневную музыку
     _loadBackground();
 
-    _catState = CatState(
-      food: 100,
-      sleep: 100,
-      game: 100,
-      lastUpdated: DateTime.now(),
-    );
+    // _catState = CatState(
+    //   food: 100,
+    //   sleep: 100,
+    //   game: 100,
+    //   lastUpdated: DateTime.now(),
+    // );
 
     _stateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -65,6 +70,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
     setState(() {
       _catState.food = (_catState.food + 25).clamp(0, 100);
       _catState.lastUpdated = DateTime.now();
+      _saveCatState();
     });
   }
 
@@ -72,6 +78,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
     setState(() {
       _catState.game = (_catState.game + 25).clamp(0, 100);
       _catState.lastUpdated = DateTime.now();
+      _saveCatState();
     });
   }
 
@@ -81,13 +88,86 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
       _catState.sleepProgress = 0;
       _isCatSleeping = true;
       _audioManager.playBackgroundMusic(isNight: true); // Добавлено
+      _saveCatState();
     });
+  }
+
+  Future<void> _initHive() async {
+    catStateBox = Hive.box('catStateBox');
+    _loadCatState();
+  }
+
+  Future<void> _saveCatState() async {
+    await catStateBox.put('currentState', _catState);
+  }
+
+
+  Future<void> _loadCatState() async {
+    final savedState = catStateBox.get('currentState');
+    if (savedState != null) {
+      setState(() {
+        _catState = savedState as CatState;
+        _isCatSleeping = _catState.isSleeping;
+        // Инициализация fishCount, если его нет в сохраненных данных
+        _catState.fishCount ??= 0;
+      });
+    }
+
+    else {
+      _catState = CatState(
+        food: 100,
+        sleep: 100,
+        game: 100,
+        lastUpdated: DateTime.now(),
+        fishCount: 3, // Начальное количество рыбок
+      );
+    }
+  }
+
+  void _calculateBackgroundDecay() {
+    if (_catState.lastClosedTime == null) return;
+
+    final now = DateTime.now();
+    final duration = now.difference(_catState.lastClosedTime!);
+    final minutesPassed = duration.inMinutes;
+
+    if (minutesPassed > 0) {
+      setState(() {
+        final decayRate = 5.0;
+        final decayAmount = decayRate * minutesPassed;
+
+        _catState.food = (_catState.food - decayAmount).clamp(0, 100);
+        _catState.game = (_catState.game - decayAmount).clamp(0, 100);
+
+        _catState.sleep = _catState.isSleeping
+            ? (_catState.sleep - decayAmount * 0.5).clamp(0, 100)
+            : (_catState.sleep - decayAmount).clamp(0, 100);
+
+        _catState.lastUpdated = now;
+        _catState.lastClosedTime = null;
+      });
+
+      _saveCatState();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _catState.lastClosedTime = DateTime.now();
+      _saveCatState();
+    } else if (state == AppLifecycleState.resumed) {
+      _loadCatState();
+      _catState.calculateOfflineChanges(DateTime.now());
+      _saveCatState();
+    }
   }
 
   @override
   void dispose() {
     _stateTimer?.cancel();
     _audioManager.dispose();
+    Hive.close();
     super.dispose();
   }
 
@@ -101,9 +181,9 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
   void _closeBackgroundSelection() => setState(() => _showBackgroundSelection = false);
 
   void _eatFish() {
-    if (fishNumbers > 0) {
+    if (_catState.fishCount > 0) {
       setState(() {
-        fishNumbers--;
+        _catState.fishCount--;
         _catState.food = (_catState.food + 25).clamp(0, 100);
         _catState.lastUpdated = DateTime.now();
       });
@@ -138,7 +218,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
 
   void _handleFishTap(int fishNumber) {
     setState(() {
-      fishNumbers--;
+      _catState.fishCount--;
       _feedCat(); // Добавляем кормление при нажатии на рыбу
     });
   }
@@ -162,6 +242,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
       _isCatSleeping = false;
       _catState.lastUpdated = DateTime.now();
       _audioManager.playBackgroundMusic(isNight: false); // Добавлено
+      _saveCatState();
     });
   }
 
@@ -274,7 +355,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
   void _catchFish() {
     setState(() {
       _isFishing = true;
-      fishNumbers++;
+      _catState.fishCount++;
     });
 
     _audioManager.playSfx('audio/fishing_success.mp3'); // Добавьте звук в assets
@@ -282,7 +363,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
     // Показываем сообщение об улове
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Вы поймали рыбку! Всего рыб: $fishNumbers'),
+        content: Text('Вы поймали рыбку! Всего рыб: ${_catState.fishCount}'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -397,7 +478,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> {
 
             if (_showFridge)
               FridgeWidget(
-                fishCount: fishNumbers,
+                fishCount: _catState.fishCount,
                 onClose: _closeFridge,
                 onFishTap: _handleFishTap,
                 onEatFish: _eatFish, // Добавляем новый параметр
