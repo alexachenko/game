@@ -1,5 +1,7 @@
-// audio_manager.dart
+
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vibration/vibration.dart';
+import 'package:flutter/widgets.dart';
 
 class AudioManager {
   static final AudioManager _instance = AudioManager._internal();
@@ -11,11 +13,11 @@ class AudioManager {
   String? get currentTrack => _currentTrack;
 
   factory AudioManager() => _instance;
-
-  // Добавляем публичный геттер
-
-
-
+  void handleAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      stopBackgroundMusic();
+    }
+  }
 
   AudioManager._internal();
 
@@ -58,5 +60,6 @@ class AudioManager {
   Future<void> dispose() async {
     await _player.stop();
     await _player.dispose();
+    await Vibration.cancel();
   }
 }

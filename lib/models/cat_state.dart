@@ -29,7 +29,7 @@ class CatState {
   DateTime? lastClosedTime;
 
 
-  @HiveField(8) // Новое поле для рыбок
+  @HiveField(8)
   int fishCount;
 
   CatState({
@@ -41,7 +41,7 @@ class CatState {
     this.sleepProgress = 0,
     this.sleepRecoveryRate = 25.0,
     this.lastClosedTime,
-    this.fishCount = 0, // Инициализация
+    this.fishCount = 0,
   });
 
   void updateStates(DateTime now) {
@@ -65,7 +65,7 @@ class CatState {
     lastUpdated = now;
   }
 
-  // В файле cat_state.dart
+
   void calculateOfflineChanges(DateTime now) {
     if (lastClosedTime == null) return;
 
@@ -73,16 +73,12 @@ class CatState {
     final minutesPassed = duration.inMinutes;
 
     if (minutesPassed > 0) {
-      final decayRate = 5.0; // Скорость уменьшения показателей в минуту
+      final decayRate = 5.0;
       final decayAmount = decayRate * minutesPassed;
 
       food = (food - decayAmount).clamp(0, 100);
       game = (game - decayAmount).clamp(0, 100);
-
-      // Сон уменьшается медленнее, если кот спал
-      sleep = isSleeping
-          ? (sleep - decayAmount * 0.5).clamp(0, 100)
-          : (sleep - decayAmount).clamp(0, 100);
+      sleep = (sleep - decayAmount).clamp(0, 100);
 
       lastUpdated = now;
       lastClosedTime = null;

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Добавляем разрешения перед тегом application -->
+    <!-- Разрешения -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -8,7 +8,8 @@
         android:label="game"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true"> <!-- Для работы с локальными файлами -->
+        android:usesCleartextTraffic="true"
+        android:stopWithTask="true"> <!-- Вот здесь добавлен атрибут -->
 
         <activity
             android:name=".MainActivity"
@@ -19,7 +20,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="landscape"> <!-- Фиксируем альбомную ориентацию -->
+            android:screenOrientation="landscape">
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
@@ -32,10 +33,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Для работы аудио в фоне -->
+        <!-- Если вы не используете сервис для аудио, этот блок можно удалить -->
+        <!--
         <service
             android:name="com.example.app.AudioService"
             android:exported="false"/>
+        -->
 
         <meta-data
             android:name="flutterEmbedding"

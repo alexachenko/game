@@ -1,4 +1,4 @@
-import 'dart:async'; // Добавляем для Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:game/widgets/background_choice.dart';
 import 'package:game/widgets/cat.dart';
@@ -8,6 +8,7 @@ import 'package:game/models/cat_state.dart';
 import 'package:game/services/audio_manager.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:vibration/vibration.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
@@ -18,12 +19,10 @@ class TamagotchiScreen extends StatefulWidget {
 }
 
 class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBindingObserver {
-  late Box catStateBox; // Добавляем Box для хранения состояния
+  late Box catStateBox; //добавляем Box для хранения состояния
   final AudioManager _audioManager = AudioManager();
   bool _isCatSleeping = false;
   bool _showFridge = false;
-  bool _isFishing = false;
-  // int fishNumbers = 3;
   bool _showBackground = false;
   String _currentBackground = 'assets/images/background1.png';
   static const String roomBackground = 'assets/images/background1.png';
@@ -49,15 +48,8 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initHive();
-    _audioManager.playBackgroundMusic(isNight: false); // Явно указываем дневную музыку
+    _audioManager.playBackgroundMusic(isNight: false);
     _loadBackground();
-
-    // _catState = CatState(
-    //   food: 100,
-    //   sleep: 100,
-    //   game: 100,
-    //   lastUpdated: DateTime.now(),
-    // );
 
     _stateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -108,7 +100,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       setState(() {
         _catState = savedState as CatState;
         _isCatSleeping = _catState.isSleeping;
-        // Инициализация fishCount, если его нет в сохраненных данных
         _catState.fishCount ??= 0;
       });
     }
@@ -119,7 +110,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         sleep: 100,
         game: 100,
         lastUpdated: DateTime.now(),
-        fishCount: 3, // Начальное количество рыбок
+        fishCount: 3, //начальное количество рыбок
       );
     }
   }
@@ -162,6 +153,18 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _saveCatState();
     }
   }
+  void _handleMultiTouch() async {
+    if (await Vibration.hasVibrator() ?? false) {
+      //вибрация с паузами для эффекта мурчания
+      Vibration.vibrate(
+        pattern: [100, 200, 100, 200, 100],
+        intensities: [128, 255, 128, 255, 128],
+      );
+    }
+  }
+
+
+
 
   @override
   void dispose() {
@@ -219,7 +222,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   void _handleFishTap(int fishNumber) {
     setState(() {
       _catState.fishCount--;
-      _feedCat(); // Добавляем кормление при нажатии на рыбу
+      _feedCat();
     });
   }
 
@@ -241,7 +244,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _catState.sleepProgress = 0;
       _isCatSleeping = false;
       _catState.lastUpdated = DateTime.now();
-      _audioManager.playBackgroundMusic(isNight: false); // Добавлено
+      _audioManager.playBackgroundMusic(isNight: false);
       _saveCatState();
     });
   }
@@ -255,13 +258,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
 
       final localPosition = box.globalToLocal(details.globalPosition);
 
-      // Координаты области, где тап НЕ закрывает холодильник
+
       const fridgeContentLeft = 240.0;
       const fridgeContentRight = 490.0;
       const fridgeContentTop = 0.0;
       const fridgeContentBottom = 600.0;
 
-      // Если тап вне контента холодильника - закрываем
+
       if (localPosition.dx < fridgeContentLeft ||
           localPosition.dx > fridgeContentRight ||
           localPosition.dy < fridgeContentTop ||
@@ -281,14 +284,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       return;
     }
 
-    // Открытие холодильника (только на фоне кухни)
     if (_currentBackground == 'assets/images/background2.png') {
       final box = context.findRenderObject() as RenderBox?;
       if (box == null) return;
 
       final localPosition = box.globalToLocal(details.globalPosition);
 
-      // Координаты зоны холодильника (подбираются экспериментально)
+      //координаты зоны холодильника
       const fridgeZoneLeft = 0;
       const fridgeZoneRight = 200.0;
       const fridgeZoneTop = 100.0;
@@ -303,14 +305,14 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       }
     }
 
-    // Ловля рыбы на фоне двора (background3.png)
-    if (_currentBackground == 'assets/images/background3.png' && !_isFishing) {
+    //ловля рыбы во дворе
+    if (_currentBackground == 'assets/images/background3.png') {
       final box = context.findRenderObject() as RenderBox?;
       if (box == null) return;
 
       final localPosition = box.globalToLocal(details.globalPosition);
 
-      // Координаты моста (настройте под ваш дизайн)
+      //координаты домика для ловли рыбы (вначале планировлся мост, переделали на дом, менять название переменных не стала)
       const bridgeZoneLeft = 110.0;
       const bridgeZoneRight = 330.0;
       const bridgeZoneTop = 100.0;
@@ -325,16 +327,16 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     }
 
 
-    // Остальная логика (например, сон кота)
+
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
     final localPosition = box.globalToLocal(details.globalPosition);
 
-    // Новые координаты (пример для background1.png)
-    const sleepZoneLeft = 0;    // Левая граница
-    const sleepZoneRight = 200.0;   // Правая граница
-    const sleepZoneTop = 150.0;     // Верхняя граница
-    const sleepZoneBottom = 335.0;  // Нижняя граница
+    //новые координаты (пример для background1.png)
+    const sleepZoneLeft = 0;
+    const sleepZoneRight = 200.0;
+    const sleepZoneTop = 150.0;
+    const sleepZoneBottom = 335.0;
 
     if (localPosition.dx >= sleepZoneLeft &&
         localPosition.dx <= sleepZoneRight &&
@@ -347,31 +349,24 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
 
   void _increaseGame() {
     setState(() {
-      _catState.game = (_catState.game + 25).clamp(0, 100); // Увеличиваем на 25% и ограничиваем до 100
+      _catState.game = (_catState.game + 25).clamp(0, 100);
       _catState.lastUpdated = DateTime.now();
     });
   }
 
   void _catchFish() {
     setState(() {
-      _isFishing = true;
       _catState.fishCount++;
     });
 
-    _audioManager.playSfx('audio/fishing_success.mp3'); // Добавьте звук в assets
+    _audioManager.playSfx('audio/fishing_success.mp3');
 
-    // Показываем сообщение об улове
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Вы поймали рыбку! Всего рыб: ${_catState.fishCount}'),
         duration: const Duration(seconds: 2),
       ),
     );
-
-    // Задержка перед следующим возможным уловом
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() => _isFishing = false);
-    });
   }
 
   @override
@@ -381,6 +376,12 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
 
       body: GestureDetector(
         onTapDown: _handleScreenTap,
+        // Добавьте этот обработчик для мультитача
+        onScaleStart: (details) {
+          if (details.pointerCount == 3) { // Проверяем три пальца
+            _handleMultiTouch();
+          }
+        },
         child: Stack(
           children: [
 
@@ -391,22 +392,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                   fit: BoxFit.cover,
                 ),
               ),
-            //
-
-
-            // // Временная кнопка для теста холодильника
-            // Positioned(
-            //   bottom: 20,
-            //   right: 20,
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       if (_currentBackground == 'assets/images/background2.png') {
-            //         setState(() => _showFridge = true);
-            //       }
-            //     },
-            //     child: const Text('Открыть холодильник (тест)'),
-            //   ),
-            // ),
 
             if (_showBackground)
               CatWidget(
@@ -505,13 +490,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       displayedValue = 0;
     }
 
-    // Если значение изменилось на целый уровень (25%)
+    //ecли значение изменилось на 25%
     if (_lastDisplayedValues[type] != displayedValue) {
       _lastDisplayedValues[type] = displayedValue;
       return _getStatusImage(type, displayedValue);
     }
 
-    // Если уровень не изменился, возвращаем предыдущее изображение
+    //если уровень не изменился
     return _getStatusImage(type, _lastDisplayedValues[type]!);
   }
 

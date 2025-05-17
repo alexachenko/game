@@ -5,14 +5,14 @@ class FridgeWidget extends StatelessWidget {
   final int fishCount;
   final VoidCallback onClose;
   final Function(int) onFishTap;
-  final VoidCallback onEatFish; // Добавляем новый callback
+  final VoidCallback onEatFish;
 
   const FridgeWidget({
     super.key,
     required this.fishCount,
     required this.onClose,
     required this.onFishTap,
-    required this.onEatFish, // Добавляем в конструктор
+    required this.onEatFish,
   });
 
   @override
@@ -22,7 +22,7 @@ class FridgeWidget extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          // Затемнение фона
+          //затемнение фона
           Positioned.fill(
             child: GestureDetector(
               onTap: onClose,
@@ -42,7 +42,7 @@ class FridgeWidget extends StatelessWidget {
                   height: 600,
                 ),
 
-                // Табличка с количеством рыб
+                //табличка с количеством рыб
                 Positioned(
                   top: 100,
                   left: 0,
@@ -67,7 +67,7 @@ class FridgeWidget extends StatelessWidget {
                   ),
                 ),
 
-                // Кнопка "Съесть рыбу"
+                //кнопка "Съесть рыбу"
                 if (fishCount > 0)
                   Positioned(
                     bottom: 100,

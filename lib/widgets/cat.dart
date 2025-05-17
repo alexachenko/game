@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:game/services/audio_manager.dart';
 
-
 class CatWidget extends StatefulWidget {
   final Function(TapDownDetails)? onTapDown;
   final bool isSleeping;
-  final VoidCallback? onRunCompleted; // Добавляем новый callback
+  final VoidCallback? onRunCompleted;
 
   const CatWidget({
     super.key,
     this.onTapDown,
     required this.isSleeping,
-    this.onRunCompleted, // Добавляем в конструктор
+    this.onRunCompleted,
   });
 
   @override
@@ -43,7 +42,7 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
 
   void _initCatPosition() {
     final screenSize = MediaQuery.of(context).size;
-    
+
     _walkZoneLeft = screenSize.width * 0.29;
     _walkZoneRight = screenSize.width * 0.7;
     _walkZoneHeight = screenSize.height * 0.25;
@@ -84,7 +83,7 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           setState(() => _isWalking = false);
-          // Вызываем callback при завершении пробежки
+
           if (widget.onRunCompleted != null) {
             widget.onRunCompleted!();
           }
@@ -101,19 +100,23 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
 
     final localPosition = box.globalToLocal(details.globalPosition);
 
-    // Проверяем вертикальную зону
+
     final isInVerticalZone = localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 &&
         localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2;
 
     if (!isInVerticalZone) return;
 
-    // Явная обработка границ
+
     if (localPosition.dx < _walkZoneLeft) {
-      _startWalking(_walkZoneLeft); // Идём к левой границе
-    } else if (localPosition.dx > _walkZoneRight) {
-      _startWalking(_walkZoneRight); // Идём к правой границе
-    } else {
-      _startWalking(localPosition.dx); // Идём к точке внутри зоны
+      _startWalking(_walkZoneLeft); //идём к левой границе
+    }
+
+    else if (localPosition.dx > _walkZoneRight) {
+      _startWalking(_walkZoneRight); //идём к правой границе
+    }
+
+    else {
+      _startWalking(localPosition.dx); //идём к точке внутри зоны
     }
   }
 
@@ -138,7 +141,6 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
               height: 100,
             ),
           ),
-          // Отладочная зона хождения 
           Positioned(
             left: _walkZoneLeft,
             top: _catBasePositionY - _walkZoneHeight / 2,
