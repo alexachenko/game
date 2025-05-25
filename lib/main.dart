@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:game/screens/main_screen.dart';
 import 'package:game/services/audio_manager.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:game/models/cat_state.dart';
 

@@ -5,14 +5,12 @@ import 'package:game/widgets/cat.dart';
 import 'package:game/widgets/fridge_widget.dart';
 import 'package:game/services/audio_manager.dart';
 import 'package:game/models/cat_state.dart';
-import 'package:game/services/audio_manager.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
-
 
   @override
   State<TamagotchiScreen> createState() => _TamagotchiScreenState();
@@ -41,7 +39,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     {'path': 'assets/images/background3.png', 'name': 'Двор'},
   ];
 
-  bool _isMusicOn = true;
 
   @override
   void initState() {
@@ -61,14 +58,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   void _feedCat() {
     setState(() {
       _catState.food = (_catState.food + 25).clamp(0, 100);
-      _catState.lastUpdated = DateTime.now();
-      _saveCatState();
-    });
-  }
-
-  void _playWithCat() {
-    setState(() {
-      _catState.game = (_catState.game + 25).clamp(0, 100);
       _catState.lastUpdated = DateTime.now();
       _saveCatState();
     });
@@ -100,7 +89,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       setState(() {
         _catState = savedState as CatState;
         _isCatSleeping = _catState.isSleeping;
-        _catState.fishCount ??= 0;
+        _catState.fishCount;
       });
     }
 
@@ -112,33 +101,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         lastUpdated: DateTime.now(),
         fishCount: 3, //начальное количество рыбок
       );
-    }
-  }
-
-  void _calculateBackgroundDecay() {
-    if (_catState.lastClosedTime == null) return;
-
-    final now = DateTime.now();
-    final duration = now.difference(_catState.lastClosedTime!);
-    final minutesPassed = duration.inMinutes;
-
-    if (minutesPassed > 0) {
-      setState(() {
-        final decayRate = 5.0;
-        final decayAmount = decayRate * minutesPassed;
-
-        _catState.food = (_catState.food - decayAmount).clamp(0, 100);
-        _catState.game = (_catState.game - decayAmount).clamp(0, 100);
-
-        _catState.sleep = _catState.isSleeping
-            ? (_catState.sleep - decayAmount * 0.5).clamp(0, 100)
-            : (_catState.sleep - decayAmount).clamp(0, 100);
-
-        _catState.lastUpdated = now;
-        _catState.lastClosedTime = null;
-      });
-
-      _saveCatState();
     }
   }
 
@@ -154,7 +116,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     }
   }
   void _handleMultiTouch() async {
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator()) {
       //вибрация с паузами для эффекта мурчания
       Vibration.vibrate(
         pattern: [100, 200, 100, 200, 100],
@@ -163,13 +125,11 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     }
   }
 
-
-
-
   @override
   void dispose() {
     _stateTimer?.cancel();
     _audioManager.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     Hive.close();
     super.dispose();
   }
@@ -201,22 +161,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _showBackgroundSelection = false;
       if (_isCatSleeping) _wakeUpCat();
     });
-  }
-
-  void _handleFridgeTap(TapDownDetails details) {
-    print('Fridge tapped! Current background: $_currentBackground');
-    if (_currentBackground != 'assets/images/background2.png') {
-      return;
-    }
-    final box = context.findRenderObject() as RenderBox?;
-    if (box == null) return;
-
-    final localPosition = box.globalToLocal(details.globalPosition);
-
-    if (localPosition.dx >= 0 && localPosition.dx <= 440 &&
-        localPosition.dy >= 180 && localPosition.dy <= 980) {
-      setState(() => _showFridge = true);
-    }
   }
 
   void _handleFishTap(int fishNumber) {
@@ -265,10 +209,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       const fridgeContentBottom = 600.0;
 
 
-      if (localPosition.dx < fridgeContentLeft ||
-          localPosition.dx > fridgeContentRight ||
-          localPosition.dy < fridgeContentTop ||
-          localPosition.dy > fridgeContentBottom) {
+      if (localPosition.dx < fridgeContentLeft || localPosition.dx > fridgeContentRight ||localPosition.dy < fridgeContentTop || localPosition.dy > fridgeContentBottom) {
         _closeFridge();
       }
       return;
@@ -296,10 +237,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       const fridgeZoneTop = 100.0;
       const fridgeZoneBottom = 400.0;
 
-      if (localPosition.dx >= fridgeZoneLeft &&
-          localPosition.dx <= fridgeZoneRight &&
-          localPosition.dy >= fridgeZoneTop &&
-          localPosition.dy <= fridgeZoneBottom) {
+      if (localPosition.dx >= fridgeZoneLeft && localPosition.dx <= fridgeZoneRight && localPosition.dy >= fridgeZoneTop && localPosition.dy <= fridgeZoneBottom) {
         setState(() => _showFridge = true);
         return;
       }
@@ -312,36 +250,28 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
 
       final localPosition = box.globalToLocal(details.globalPosition);
 
-      //координаты домика для ловли рыбы (вначале планировлся мост, переделали на дом, менять название переменных не стала)
+      //координаты домика для ловли рыбы 
       const bridgeZoneLeft = 110.0;
       const bridgeZoneRight = 330.0;
       const bridgeZoneTop = 100.0;
       const bridgeZoneBottom = 210.0;
 
-      if (localPosition.dx >= bridgeZoneLeft &&
-          localPosition.dx <= bridgeZoneRight &&
-          localPosition.dy >= bridgeZoneTop &&
-          localPosition.dy <= bridgeZoneBottom) {
+      if (localPosition.dx >= bridgeZoneLeft && localPosition.dx <= bridgeZoneRight && localPosition.dy >= bridgeZoneTop && localPosition.dy <= bridgeZoneBottom) {
         _catchFish();
       }
     }
-
-
 
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
     final localPosition = box.globalToLocal(details.globalPosition);
 
-    //новые координаты (пример для background1.png)
+    // где спит кот
     const sleepZoneLeft = 0;
     const sleepZoneRight = 200.0;
     const sleepZoneTop = 150.0;
     const sleepZoneBottom = 335.0;
 
-    if (localPosition.dx >= sleepZoneLeft &&
-        localPosition.dx <= sleepZoneRight &&
-        localPosition.dy >= sleepZoneTop &&
-        localPosition.dy <= sleepZoneBottom) {
+    if (localPosition.dx >= sleepZoneLeft && localPosition.dx <= sleepZoneRight && localPosition.dy >= sleepZoneTop && localPosition.dy <= sleepZoneBottom) {
       _startSleeping();
     }
   }
@@ -373,10 +303,8 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   Widget build(BuildContext context) {
 
     return Scaffold(
-
       body: GestureDetector(
         onTapDown: _handleScreenTap,
-        // Добавьте этот обработчик для мультитача
         onScaleStart: (details) {
           if (details.pointerCount == 3) { // Проверяем три пальца
             _handleMultiTouch();
@@ -384,7 +312,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         },
         child: Stack(
           children: [
-
             if (_showBackground)
               Positioned.fill(
                 child: Image.asset(
@@ -401,13 +328,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                     _closeBackgroundSelection();
                   }
                 },
-                onRunCompleted: _increaseGame, // Передаем callback
+                onRunCompleted: _increaseGame, 
               ),
 
             if (_isCatSleeping)
               Positioned.fill(
                 child: Container(
-                  color: const Color.fromRGBO(0, 0, 0, 0.7), // Исправляем withOpacity
+                  color: const Color.fromRGBO(0, 0, 0, 0.7), 
                 ),
               ),
 
@@ -425,7 +352,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
               left: 320,
               child: Column(
                 children: [
-
                   _buildStatusIndicator('game', _catState.game),
                 ],
               ),
@@ -466,7 +392,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 fishCount: _catState.fishCount,
                 onClose: _closeFridge,
                 onFishTap: _handleFishTap,
-                onEatFish: _eatFish, // Добавляем новый параметр
+                onEatFish: _eatFish, 
               ),
           ],
         ),
@@ -475,9 +401,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   }
 
   Widget _buildStatusIndicator(String type, double currentValue) {
-    // Определяем, какое изображение показывать
     double displayedValue;
-
     if (currentValue > 75) {
       displayedValue = 100;
     } else if (currentValue > 50) {
@@ -509,5 +433,4 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       fit: BoxFit.contain,
     );
   }
-
 }

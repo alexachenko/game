@@ -101,8 +101,7 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
     final localPosition = box.globalToLocal(details.globalPosition);
 
 
-    final isInVerticalZone = localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 &&
-        localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2;
+    final isInVerticalZone = localPosition.dy >= _catBasePositionY - _walkZoneHeight / 2 && localPosition.dy <= _catBasePositionY + _walkZoneHeight / 2;
 
     if (!isInVerticalZone) return;
 
