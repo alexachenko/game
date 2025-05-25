@@ -28,7 +28,6 @@ class CatState {
   @HiveField(7)
   DateTime? lastClosedTime;
 
-
   @HiveField(8)
   int fishCount;
 
@@ -84,5 +83,4 @@ class CatState {
       lastClosedTime = null;
     }
   }
-
 }
