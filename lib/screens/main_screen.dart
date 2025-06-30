@@ -287,24 +287,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       }
     }
 
-    //ловля рыбы во дворе
-    if (_currentBackground == 'assets/images/background3.png') {
-      final box = context.findRenderObject() as RenderBox?;
-      if (box == null) return;
-
-      final localPosition = box.globalToLocal(details.globalPosition);
-
-      //координаты домика для ловли рыбы 
-      const bridgeZoneLeft = 110.0;
-      const bridgeZoneRight = 330.0;
-      const bridgeZoneTop = 100.0;
-      const bridgeZoneBottom = 210.0;
-
-      if (localPosition.dx >= bridgeZoneLeft && localPosition.dx <= bridgeZoneRight && localPosition.dy >= bridgeZoneTop && localPosition.dy <= bridgeZoneBottom) {
-        _catchFish();
-      }
-    }
-
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
     final localPosition = box.globalToLocal(details.globalPosition);
@@ -325,10 +307,10 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       final localPosition = box.globalToLocal(details.globalPosition);
 
       // Координаты дома
-      const houseLeft = 50.0;
-      const houseRight = 200.0;
-      const houseTop = 300.0;
-      const houseBottom = 450.0;
+      const houseLeft = 110.0;
+      const houseRight = 330.0;
+      const houseTop = 100.0;
+      const houseBottom = 210.0;
 
       if (localPosition.dx >= houseLeft &&
           localPosition.dx <= houseRight &&
