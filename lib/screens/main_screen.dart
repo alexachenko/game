@@ -8,6 +8,8 @@ import 'package:game/models/cat_state.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
+import 'package:game/games/game_selector.dart';
+import 'package:game/games/arcanoid/arcanoid_widget.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
@@ -25,6 +27,8 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   String _currentBackground = 'assets/images/background1.png';
   static const String roomBackground = 'assets/images/background1.png';
   bool _showBackgroundSelection = false;
+  bool _showGameSelector = false;
+  bool _showArcanoidGame = false;
   late CatState _catState;
   Timer? _stateTimer;
   final Map<String, double> _lastDisplayedValues = {
@@ -102,6 +106,46 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         fishCount: 3, //начальное количество рыбок
       );
     }
+  }
+
+  void _openGameSelector() {
+    setState(() {
+      _showGameSelector = true;
+    });
+  }
+
+  void _closeGameSelector() {
+    setState(() {
+      _showGameSelector = false;
+    });
+  }
+
+  void _startGame(String gameType) {
+    if (gameType == 'arcanoid') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ArcanoidWidget(
+            onFishEarned: _earnFishFromGame,
+            onGameOver: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  void _endArcanoidGame() {
+    setState(() {
+      _showArcanoidGame = false;
+    });
+  }
+
+  void _earnFishFromGame(int count) {
+    setState(() {
+      _catState.fishCount += count;
+    });
   }
 
   @override
@@ -274,6 +318,26 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     if (localPosition.dx >= sleepZoneLeft && localPosition.dx <= sleepZoneRight && localPosition.dy >= sleepZoneTop && localPosition.dy <= sleepZoneBottom) {
       _startSleeping();
     }
+    if (_currentBackground == 'assets/images/background3.png') {
+      final box = context.findRenderObject() as RenderBox?;
+      if (box == null) return;
+
+      final localPosition = box.globalToLocal(details.globalPosition);
+
+      // Координаты дома
+      const houseLeft = 50.0;
+      const houseRight = 200.0;
+      const houseTop = 300.0;
+      const houseBottom = 450.0;
+
+      if (localPosition.dx >= houseLeft &&
+          localPosition.dx <= houseRight &&
+          localPosition.dy >= houseTop &&
+          localPosition.dy <= houseBottom) {
+        _openGameSelector();
+        return;
+      }
+    }
   }
 
 
@@ -306,11 +370,12 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       body: GestureDetector(
         onTapDown: _handleScreenTap,
         onScaleStart: (details) {
-          if (details.pointerCount == 3) { // Проверяем три пальца
+          if (details.pointerCount == 3) { //проверяем три пальца
             _handleMultiTouch();
           }
         },
         child: Stack(
+
           children: [
             if (_showBackground)
               Positioned.fill(
@@ -394,7 +459,19 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onFishTap: _handleFishTap,
                 onEatFish: _eatFish, 
               ),
+            if (_showGameSelector)
+              GameSelector(
+                onClose: _closeGameSelector,
+                onGameSelected: _startGame,
+              ),
+
+            if (_showArcanoidGame)
+              ArcanoidWidget(
+                onFishEarned: _earnFishFromGame,
+                onGameOver: _endArcanoidGame,
+              ),
           ],
+
         ),
       ),
     );

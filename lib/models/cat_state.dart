@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive/hive.dart'; //импорт пакета Hive для локального хранения данных.
 
 part 'cat_state.g.dart';
 

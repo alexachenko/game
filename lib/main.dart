@@ -46,7 +46,7 @@ class AppLifecycleObserver extends NavigatorObserver with WidgetsBindingObserver
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      _audioManager.stopBackgroundMusic();
+      _audioManager.stopBackgroundMusic(); //остановка музыки при закрытии приложения
     }
   }
 
@@ -54,7 +54,7 @@ class AppLifecycleObserver extends NavigatorObserver with WidgetsBindingObserver
   void didPush(Route route, Route? previousRoute) {
     WidgetsBinding.instance.addObserver(this);
   }
-
+//другие методы
   @override
   void didPop(Route route, Route? previousRoute) {
     WidgetsBinding.instance.removeObserver(this);

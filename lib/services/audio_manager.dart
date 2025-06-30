@@ -22,12 +22,13 @@ class AudioManager {
   AudioManager._internal();
 
   Future<void> playBackgroundMusic({bool isNight = false}) async {
-    final track = isNight ? 'audio/background_music_night.mp3' : 'audio/background_music.mp3';
+    final track = isNight ?
+    'audio/background_music_night.mp3' : 'audio/background_music.mp3';
 
     if (_currentTrack == track && _isPlaying) return;
 
     await _player.stop();
-    await _player.setReleaseMode(ReleaseMode.loop); // зацикливание
+    await _player.setReleaseMode(ReleaseMode.loop); //зацикливание
     await _player.setVolume(0.3);
     await _player.play(AssetSource(track));
 
@@ -41,7 +42,7 @@ class AudioManager {
       await _sfxPlayer.setVolume(1.0);
       await _sfxPlayer.play(AssetSource(assetPath));
     } catch (e) {
-      print('Error playing SFX: $e');
+      print('Ошибка SFХ: $e');
     }
   }
 
