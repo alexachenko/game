@@ -10,6 +10,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
 import 'package:game/games/game_selector.dart';
 import 'package:game/games/arcanoid/arcanoid_widget.dart';
+//какой-то комментарий
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
