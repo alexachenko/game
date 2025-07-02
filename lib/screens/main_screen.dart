@@ -10,7 +10,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
 import 'package:game/games/game_selector.dart';
 import 'package:game/games/arcanoid/arcanoid_widget.dart';
-//какой-то комментарий
+import 'package:game/games/flappy_cat/flappy_game.dart';
+import 'package:game/games/flappy_cat/flappy_widget.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
@@ -30,6 +31,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   bool _showBackgroundSelection = false;
   bool _showGameSelector = false;
   bool _showArcanoidGame = false;
+  bool _showFlappyGame = false;
   late CatState _catState;
   Timer? _stateTimer;
   final Map<String, double> _lastDisplayedValues = {
@@ -135,11 +137,30 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         ),
       );
     }
+    if (gameType == 'flappy') {
+        Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FlappyGameWidget(
+            onFishEarned: _earnFishFromGame,
+            onGameOver: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _endArcanoidGame() {
     setState(() {
       _showArcanoidGame = false;
+    });
+  }
+
+    void _endFlappyGame() {
+    setState(() {
+      _showFlappyGame = false;
     });
   }
 
@@ -453,6 +474,11 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onFishEarned: _earnFishFromGame,
                 onGameOver: _endArcanoidGame,
               ),
+              if (_showFlappyGame)
+              ArcanoidWidget(
+                onFishEarned: _earnFishFromGame,
+                onGameOver: _endFlappyGame,
+              )
           ],
 
         ),

@@ -1,0 +1,1 @@
+enum CatMovement {middle, up, down, died}

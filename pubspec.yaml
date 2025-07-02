@@ -32,6 +32,7 @@ dependencies:
   vibration: ^2.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  flame: ^1.10.0
   flutter:
     sdk: flutter
   audioplayers: ^5.1.1
@@ -105,6 +106,16 @@ flutter:
     - assets/images/racket.png
     - assets/images/games.png
     - assets/images/arcanoid_background.png
+    - assets/images/flappy_background.png
+    - assets/images/cat_downflap.png
+    - assets/images/cat_midflap.png
+    - assets/images/cat_upflap.png
+    - assets/images/cat_died.png
+    - assets/images/pipe.png
+    - assets/images/pipe_rotated.png
+    - assets/images/gameover.png
+    - assets/images/startgame.png
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
