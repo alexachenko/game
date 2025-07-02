@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class GameSelector extends StatelessWidget {
-  final VoidCallback onClose;
-  final Function(String) onGameSelected;
+  final VoidCallback onClose; //вызывается при закрытии окна
+  final Function(String) onGameSelected; //принимает название игры
 
   const GameSelector({
     super.key,
@@ -15,7 +15,7 @@ class GameSelector extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          Positioned.fill(
+          Positioned.fill( //затемнённый фон
             child: GestureDetector(
               onTap: onClose,
               child: Container(
@@ -39,21 +39,21 @@ class GameSelector extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Кнопка игры Arcanoid
+                  //кнопка игры Arcanoid
                   GestureDetector(
                     onTap: () => onGameSelected('arcanoid'),
                     child: Container(
-                      width: 150,
-                      height: 150,
+                      width: 200,
+                      height: 220,
                       color: Colors.transparent,
                     ),
                   ),
-                  // Кнопка игры Flappy Bird (заглушка)
+                  // кнопка игры Flappy Bird
                   GestureDetector(
                     onTap: () => onGameSelected('flappy'),
                     child: Container(
-                      width: 150,
-                      height: 150,
+                      width: 200,
+                      height: 220,
                       color: Colors.transparent,
                     ),
                   ),
