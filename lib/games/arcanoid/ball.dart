@@ -14,11 +14,11 @@ class Ball {
       paddle.positionX + Paddle.width / 2,
       paddle.positionY - radius * 2,
     );
-    velocity = Offset(5.0, -5.0); // Убедитесь, что скорость не нулевая
+    velocity = Offset(5.0, -5.0); //cкорость
   }
 
   void update(Paddle paddle, Size gameArea) {
-    position += velocity; // Убедитесь, что эта строка не закомментирована
+    position += velocity;
   }
 
   bool isCollidingWith(dynamic object) {
@@ -31,8 +31,8 @@ class Ball {
     final hitPosition = (position.dx - paddleCenter) / (Paddle.width / 2);
 
     velocity = Offset(
-      hitPosition * 5, // Горизонтальная скорость зависит от места удара
-      -velocity.dy.abs(), // Всегда отскакивает вверх
+      hitPosition * 5, //горизонтальная скорость зависит от места удара
+      -velocity.dy.abs(), //всегда отскакивает вверх
     );
   }
 
@@ -40,7 +40,7 @@ class Ball {
     final ballRect = Rect.fromCircle(center: position, radius: radius);
     final blockRect = block.rect;
 
-    // Определяем сторону столкновения
+    //определяем сторону столкновения
     final overlapX = ballRect.right > blockRect.left && ballRect.left < blockRect.right;
     final overlapY = ballRect.bottom > blockRect.top && ballRect.top < blockRect.bottom;
 
@@ -49,7 +49,7 @@ class Ball {
     } else if (overlapY && (position.dx <= blockRect.left || position.dx >= blockRect.right)) {
       velocity = Offset(-velocity.dx, velocity.dy);
     } else {
-      // Угловое столкновение
+      //угловое столкновение
       velocity = Offset(-velocity.dx, -velocity.dy);
     }
   }
@@ -62,7 +62,7 @@ class Ball {
         width: radius * 2,
         height: radius * 2,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: Colors.orange,
           shape: BoxShape.circle,
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'arcanoid_game.dart';
+import 'block.dart';
 
 class ArcanoidWidget extends StatefulWidget {
   final Function(int) onFishEarned;
@@ -115,7 +116,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
           ),
         ),
 
-        // Игровое поле
+        //игровое поле
         if (_gameStarted)
           LayoutBuilder(
             builder: (context, constraints) {
@@ -142,7 +143,6 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -152,7 +152,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
             },
           ),
 
-        // Таймер перед началом
+        //таймер
         if (!_gameStarted && !_gameEnded)
           Center(
             child: Text(
@@ -160,12 +160,11 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
               style: const TextStyle(
                 fontSize: 100,
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
 
-        // Экран завершения игры
+        //завершение игры
         if (_gameEnded)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
@@ -180,8 +179,8 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Игра завершена!',
+                    Text(
+    (game.score >= Block.fishBlocksCount) ? 'Победа!' : 'Игра завершена :(',
                       style: TextStyle(
                         fontSize: 28,
                         color: Colors.white,
@@ -231,7 +230,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18),
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.white,
+        ),
       ),
     );
   }

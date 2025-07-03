@@ -12,6 +12,7 @@ class ArcanoidGame {
   Ball ball = Ball();
   Size gameArea = Size.zero;
   int score = 0;
+  int FishBlockCountt=0;
 
 
   ArcanoidGame({
@@ -19,24 +20,24 @@ class ArcanoidGame {
     required this.onGameOver,
   });
 
-  // В классе ArcanoidGame добавьте:
-  bool _isGameEnded = false; // Добавляем флаг завершения игры
+  bool _isGameEnded = false; //добавляем флаг завершения игры
 
   void update() {
-    if (_isGameEnded) return; // Не обновляем, если игра завершена
+    if (_isGameEnded) return; //не обновляем, если игра завершена
 
     ball.update(paddle, gameArea);
     _checkCollisions();
 
-    if (ball.position.dy > gameArea.height) {
+    if ((ball.position.dy > gameArea.height) || (score == Block.fishBlocksCount)) {
       _isGameEnded = true;
-      onGameOver(); // Уведомляем виджет о завершении
+      onGameOver(); //уведомляем виджет о завершении
     }
   }
 
   void reset() {
     _isGameEnded = false;
-    // Дополнительный код сброса состояния
+    score = 0;
+    Block.fishBlocksCount = 0;
   }
 
   void initialize(Size size) {
@@ -49,17 +50,17 @@ class ArcanoidGame {
   void _createBlocks() {
     const rows = 6;
     const cols = 6;
-    const blockWidth = 100.0; // Увеличили в 2 раза (было 50)
-    const blockHeight = 20.0;  // Увеличили в 2 раза (было 20)
+    const blockWidth = 100.0;
+    const blockHeight = 20.0;
     const horizontalPadding = 5.0;
     const verticalPadding = 5.0;
 
-    // Рассчитываем общую ширину и высоту сетки блоков
+    //рассчитываем общую ширину и высоту сетки блоков
     final totalWidth = cols * (blockWidth + horizontalPadding) - horizontalPadding;
 
-    // Начальная позиция для центрирования
+    //начальная позиция для центрирования
     final startX = (gameArea.width - totalWidth) / 2;
-    final startY = 10.0; // Отступ сверху
+    final startY = 10.0; //отступ сверху
 
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
@@ -91,7 +92,7 @@ class ArcanoidGame {
 
 
   void _checkCollisions() {
-    // Проверка столкновений с блоками
+    //проверка столкновений с блоками
     for (var block in blocks.toList()) {
       if (ball.isCollidingWith(block)) {
         ball.bounceOffBlock(block);
@@ -99,10 +100,10 @@ class ArcanoidGame {
 
         if (block.isDestroyed) {
           blocks.remove(block);
-          score += 10;
 
           if (block.isComplex) {
             onFishEarned(1);
+            score += 1;
           }
         }
       }

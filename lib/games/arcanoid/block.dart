@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 enum BlockType { red, orange, blue }
 
 class Block {
+  static int fishBlocksCount = 0;
+
   final Offset position;
   final double width;
   final double height;
@@ -18,7 +20,11 @@ class Block {
     required this.type,
     required this.isComplex,
     required this.hitsRequired,
-  });
+  }) {
+    if (isComplex) {
+      fishBlocksCount++; // Увеличиваем счётчик при создании рыбного блока
+    }
+  }
 
   bool get isDestroyed => hitsTaken >= hitsRequired;
 
@@ -46,36 +52,8 @@ class Block {
         imagePath,
         width: width,
         height: height,
-        errorBuilder: (context, error, stackTrace) {
-          // Запасной вариант, если изображение не загружено
-          return Container(
-            width: width,
-            height: height,
-            color: _getBlockColor(),
-            child: Center(
-              child: Text(
-                isComplex ? (hitsRequired - hitsTaken).toString() : '',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
-  }
-
-  Color _getBlockColor() {
-    switch (type) {
-      case BlockType.red:
-        return Colors.red;
-      case BlockType.orange:
-        return Colors.orange;
-      case BlockType.blue:
-        return Colors.blue;
-    }
   }
 
   String _typeToString(BlockType type) {
