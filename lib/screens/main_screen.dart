@@ -135,6 +135,8 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         ),
       );
     }
+
+
   }
 
   void _endArcanoidGame() {
