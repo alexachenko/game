@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:game/services/audio_manager.dart';
+import 'package:game/screens/main_screen.dart';
 
 class CatWidget extends StatefulWidget {
   final Function(TapDownDetails)? onTapDown;
   final bool isSleeping;
   final VoidCallback? onRunCompleted;
+  final String currentSkin; // добавьте эту строку
 
   const CatWidget({
     super.key,
     this.onTapDown,
     required this.isSleeping,
     this.onRunCompleted,
+    required this.currentSkin,
   });
 
   @override
@@ -158,15 +161,15 @@ class _CatWidgetState extends State<CatWidget> with SingleTickerProviderStateMix
   }
 
   String _getCatImage() {
-    if (widget.isSleeping) return 'assets/images/CatSleep.png';
-    if (!_isWalking) return 'assets/images/catIsSitting.png';
+    if (widget.isSleeping) return 'assets/images/CatSleep${widget.currentSkin}.png';
+    if (!_isWalking) return 'assets/images/catIsSitting${widget.currentSkin}.png';
 
     return _isFacingRight
         ? (_stepCounter == 0
-        ? 'assets/images/step1Right.png'
-        : 'assets/images/step2Right.png')
+        ? 'assets/images/step1Right${widget.currentSkin}.png'
+        : 'assets/images/step2Right${widget.currentSkin}.png')
         : (_stepCounter == 0
-        ? 'assets/images/step1Left.png'
-        : 'assets/images/step2Left.png');
+        ? 'assets/images/step1Left${widget.currentSkin}.png'
+        : 'assets/images/step2Left${widget.currentSkin}.png');
   }
 }

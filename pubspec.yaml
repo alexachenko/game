@@ -32,6 +32,7 @@ dependencies:
   vibration: ^2.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  flame: ^1.10.0
   flutter:
     sdk: flutter
   audioplayers: ^5.1.1
@@ -78,12 +79,42 @@ flutter:
     - assets/images/map.png
     - assets/images/fridge_empty.png
     - assets/images/fridge_with_fish.png
-    - assets/images/catIsSitting.png
-    - assets/images/CatSleep.png
-    - assets/images/step1Left.png
-    - assets/images/step1Right.png
-    - assets/images/step2Left.png
-    - assets/images/step2Right.png
+    - assets/images/catIsSitting1.png
+    - assets/images/CatSleep1.png
+    - assets/images/step1Left1.png
+    - assets/images/step1Right1.png
+    - assets/images/step2Left1.png
+    - assets/images/step2Right1.png
+    - assets/images/catIsSitting2.png
+    - assets/images/CatSleep2.png
+    - assets/images/step1Left2.png
+    - assets/images/step1Right2.png
+    - assets/images/step2Left2.png
+    - assets/images/step2Right2.png
+    - assets/images/catIsSitting3.png
+    - assets/images/CatSleep3.png
+    - assets/images/step1Left3.png
+    - assets/images/step1Right3.png
+    - assets/images/step2Left3.png
+    - assets/images/step2Right3.png
+    - assets/images/catIsSitting4.png
+    - assets/images/CatSleep4.png
+    - assets/images/step1Left4.png
+    - assets/images/step1Right4.png
+    - assets/images/step2Left4.png
+    - assets/images/step2Right4.png
+    - assets/images/catIsSitting5.png
+    - assets/images/CatSleep5.png
+    - assets/images/step1Left5.png
+    - assets/images/step1Right5.png
+    - assets/images/step2Left5.png
+    - assets/images/step2Right5.png
+    - assets/images/catIsSitting6.png
+    - assets/images/CatSleep6.png
+    - assets/images/step1Left6.png
+    - assets/images/step1Right6.png
+    - assets/images/step2Left6.png
+    - assets/images/step2Right6.png
     - assets/audio/background_music.mp3
     - assets/audio/background_music_night.mp3
     - assets/images/food0.png
@@ -105,6 +136,16 @@ flutter:
     - assets/images/racket.png
     - assets/images/games.png
     - assets/images/arcanoid_background.png
+    - assets/images/flappy_background.png
+    - assets/images/cat_downflap.png
+    - assets/images/cat_midflap.png
+    - assets/images/cat_upflap.png
+    - assets/images/cat_died.png
+    - assets/images/pipe.png
+    - assets/images/pipe_rotated.png
+    - assets/images/gameover.png
+    - assets/images/startgame.png
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:game/widgets/background_choice.dart';
+import 'package:game/widgets/skin_choice.dart';
 import 'package:game/widgets/cat.dart';
 import 'package:game/widgets/fridge_widget.dart';
 import 'package:game/services/audio_manager.dart';
@@ -10,7 +11,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
 import 'package:game/games/game_selector.dart';
 import 'package:game/games/arcanoid/arcanoid_widget.dart';
-//какой-то комментарий
+import 'package:game/games/flappy_cat/flappy_game.dart';
+import 'package:game/games/flappy_cat/flappy_widget.dart';
 
 class TamagotchiScreen extends StatefulWidget {
   const TamagotchiScreen({super.key});
@@ -26,10 +28,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   bool _showFridge = false;
   bool _showBackground = false;
   String _currentBackground = 'assets/images/background1.png';
+  String _currentSkin = '1';
   static const String roomBackground = 'assets/images/background1.png';
   bool _showBackgroundSelection = false;
+  bool _showSkinSelection = false;
   bool _showGameSelector = false;
   bool _showArcanoidGame = false;
+  bool _showFlappyGame = false;
   late CatState _catState;
   Timer? _stateTimer;
   final Map<String, double> _lastDisplayedValues = {
@@ -104,7 +109,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         sleep: 100,
         game: 100,
         lastUpdated: DateTime.now(),
-        fishCount: 3, //начальное количество рыбок
+        fishCount: 1, //начальное количество рыбок
       );
     }
   }
@@ -135,13 +140,30 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         ),
       );
     }
-
-
+    if (gameType == 'flappy') {
+        Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FlappyGameWidget(
+            onFishEarned: _earnFishFromGame,
+            onGameOver: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _endArcanoidGame() {
     setState(() {
       _showArcanoidGame = false;
+    });
+  }
+
+    void _endFlappyGame() {
+    setState(() {
+      _showFlappyGame = false;
     });
   }
 
@@ -190,6 +212,10 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   void _openBackgroundSelection() => setState(() => _showBackgroundSelection = true);
   void _closeBackgroundSelection() => setState(() => _showBackgroundSelection = false);
 
+
+  void _openSkinSelection() => setState(() => _showSkinSelection = true);
+  void _closeSkinSelection() => setState(() => _showSkinSelection = false);
+
   void _eatFish() {
     if (_catState.fishCount > 0) {
       setState(() {
@@ -199,6 +225,14 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       });
       _audioManager.playSfx('audio/meow.mp3');
     }
+  }
+
+  void _changeSkin(String newSkin) {
+    _audioManager.playSfx('audio/room_switching.mp3');
+    setState(() {
+      _currentSkin = newSkin;
+      _showSkinSelection = false;
+    });
   }
 
   void _changeBackground(String newBackground) {
@@ -378,7 +412,8 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                     _closeBackgroundSelection();
                   }
                 },
-                onRunCompleted: _increaseGame, 
+                onRunCompleted: _increaseGame,
+                currentSkin: _currentSkin,
               ),
 
             if (_isCatSleeping)
@@ -415,6 +450,26 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 ],
               ),
             ),
+
+            if (!_showSkinSelection)
+              Positioned(
+                right: 80,
+                top: 90,
+                child: GestureDetector(
+                  onTap: _openSkinSelection,
+                  child: Container(
+                    width: 100,
+                    height: 180,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+
+            if (_showSkinSelection)
+              SkinSelector(
+                onSkinSelected: _changeSkin,
+                onClose: _closeSkinSelection,
+              ),
 
             if (_showBackground && !_showBackgroundSelection)
               Positioned(
@@ -455,6 +510,11 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onFishEarned: _earnFishFromGame,
                 onGameOver: _endArcanoidGame,
               ),
+              if (_showFlappyGame)
+              ArcanoidWidget(
+                onFishEarned: _earnFishFromGame,
+                onGameOver: _endFlappyGame,
+              )
           ],
 
         ),
