@@ -89,7 +89,28 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
 
   void _restartGame() {
     setState(() {
+      // Полный сброс состояния игры
+      game.reset();
+      game.blocks.clear();
+
+      // Сброс флагов состояния виджета
+      _gameEnded = false;
+      _gameStarted = false;
+      _showEndPanel = false;
+      _showGameOverButtons = false;
+
+      // Переинициализация игры
+      game = ArcanoidGame(
+        onFishEarned: widget.onFishEarned,
+        onGameOver: _handleGameOver,
+      );
+
+      // Сброс анимации
+      _animationController.reset();
+
       _audioManager.playBackgroundMusic(isGame: true);
+      // Запуск обратного отсчета
+      _countdown = 3;
       _startCountdown();
     });
   }

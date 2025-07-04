@@ -74,10 +74,13 @@ flutter:
     - assets/audio/evil_meow.mp3
     - assets/audio/breaking_ice.mp3
     - assets/audio/getting_fish.mp3
+    - assets/audio/hit.mp3
     - assets/images/icon.png
     - assets/images/background1.png
     - assets/images/background2.png
     - assets/images/background3.png
+    - assets/images/soundOff.png
+    - assets/images/soundOn.png
     - assets/images/map.png
     - assets/images/fridge_empty.png
     - assets/images/fridge_with_fish.png

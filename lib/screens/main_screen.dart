@@ -407,6 +407,25 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 ),
               ),
 
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: IconButton(
+                icon: Image.asset(
+                  _audioManager.globalMusicShutdown
+                      ? 'assets/images/soundOff.png'
+                      : 'assets/images/soundOn.png',
+                  width: 55,
+                  height: 55,
+                ),
+                onPressed: () async {
+                  _audioManager.playSfx('assets/audio/tap.mp3');
+                  await _audioManager.toggleMusic();
+                  setState(() {}); //обновляем UI
+                },
+              ),
+            ),
+
             if (_showBackground)
               CatWidget(
                 isSleeping: _isCatSleeping,

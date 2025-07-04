@@ -8,6 +8,7 @@ class AudioManager {
   final AudioPlayer _sfxPlayer = AudioPlayer();
   bool _isPlaying = false;
   String? _currentTrack;
+  bool globalMusicShutdown=false;
 
   String? get currentTrack => _currentTrack;
 
@@ -21,17 +22,35 @@ class AudioManager {
     }
   }
 
+  Future<void> toggleMusic() async {
+    globalMusicShutdown = !globalMusicShutdown;
+
+    if (!globalMusicShutdown) {
+      //определяем текущий тип музыки
+      final isNightMode = _currentTrack == 'audio/background_music_night.mp3';
+      final isGameMode = _currentTrack == 'audio/arkanoid_background.mp3';
+
+      await playBackgroundMusic(
+        isNight: isNightMode,
+        isGame: isGameMode,
+      );
+    } else {
+      await stopBackgroundMusic();
+    }
+  }
+
   Future<void> playBackgroundMusic({bool isNight = false, bool isGame = false}) async {
+    if (globalMusicShutdown) return;
+
     final track = isGame
         ? 'audio/arkanoid_background.mp3'
         : (isNight
         ? 'audio/background_music_night.mp3'
         : 'audio/background_music.mp3');
 
-    // Если тот же трек уже играет — ничего не делать
     if (_isPlaying && _currentTrack == track) return;
 
-    await stopBackgroundMusic(); // безопасно остановим предыдущий
+    await stopBackgroundMusic();
 
     try {
       await _player.setReleaseMode(ReleaseMode.loop);
@@ -41,7 +60,7 @@ class AudioManager {
       _isPlaying = true;
       _currentTrack = track;
     } catch (e) {
-      print('Ошибка запуска фоновой музыки: $e');
+      print('Ошибка запуска музыки: $e');
     }
   }
 

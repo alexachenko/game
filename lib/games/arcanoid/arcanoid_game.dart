@@ -40,6 +40,9 @@ class ArcanoidGame {
     _isGameEnded = false;
     score = 0;
     Block.fishBlocksCount = 0;
+    blocks.clear();
+    ball.initialize(paddle);
+    paddle.initialize(gameArea);
   }
 
   void initialize(Size size) {
@@ -121,7 +124,7 @@ class ArcanoidGame {
     //проверка столкновения с ракеткой
     if (ball.isCollidingWith(paddle)) {
       ball.bounceOffPaddle(paddle);
-      _audioManager.playSfx('audio/breaking_ice.mp3');
+      _audioManager.playSfx('audio/hit.mp3');
     }
 
     //левый край
