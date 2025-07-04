@@ -48,21 +48,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
     });
 
   }
-  void _initializeGame() {
-    game = ArcanoidGame(
-      onFishEarned: widget.onFishEarned,
-      onGameOver: _handleGameOver,
-    );
-    _countdown = 3;
-    _gameEnded = false;
-    _gameStarted = false;
-    _showEndPanel = false;
-  }
 
   @override
   void initState() {
     super.initState();
-    _initializeGame();
     game = ArcanoidGame(
       onFishEarned: widget.onFishEarned,
       onGameOver: _handleGameOver,
@@ -99,7 +88,6 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
 
   void _restartGame() {
     setState(() {
-      _initializeGame();
       _audioManager.playBackgroundMusic(isGame: true);
       _startCountdown();
     });

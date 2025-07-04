@@ -31,16 +31,12 @@ class AudioManager {
         ? 'audio/background_music_night.mp3'
         : 'audio/background_music.mp3');
 
-    try {
       await _player.setReleaseMode(ReleaseMode.loop);
       await _player.setVolume(0.3);
       await _player.play(AssetSource(track));
 
       _currentTrack = track;
       _isPlaying = true;
-    } catch (e) {
-      print('Ошибка воспроизведения музыки: $e');
-    }
   }
 
   Future<void> stopBackgroundMusic() async {
