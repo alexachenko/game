@@ -46,6 +46,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
         });
       }
     });
+    // widget.onGameOver();
 
   }
 
@@ -97,7 +98,6 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
   @override
   void dispose() {
     _animationController.dispose();
-    _audioManager.dispose();
     game.blocks.clear();
     super.dispose();
   }
@@ -207,19 +207,8 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                           'Выйти',
                             Colors.blueAccent,
                                 () {
-                              // Сначала остановить игровую музыку
-                              _audioManager.stopBackgroundMusic();
-
-                              // Включить музыку главного меню
-                              _audioManager.playBackgroundMusic(isGame: false, isNight: false);
-
-                              // Закрыть экран игры после небольшой задержки
-                              Future.delayed(const Duration(milliseconds: 100), () {
-                                if (mounted) {
-                                  Navigator.of(context).pop();
+                                  widget.onGameOver();
                                 }
-                              });
-                            }
                         ),
                       ],
                     ),

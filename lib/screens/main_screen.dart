@@ -146,12 +146,14 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       );
     }
     if (gameType == 'flappy') {
-        Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => FlappyGameWidget(
             onFishEarned: _earnFishFromGame,
             onGameOver: () {
+              _audioManager.stopBackgroundMusic();
+              _audioManager.playBackgroundMusic(isNight: false, isGame: false);
               Navigator.pop(context);
             },
           ),
@@ -160,12 +162,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     }
   }
 
-  void _endArcanoidGame() {
-    _audioManager.playBackgroundMusic(isNight: false, isGame: false);
-    setState(() {
-      _showArcanoidGame = false;
-    });
-  }
 
     void _endFlappyGame() {
       _audioManager.playBackgroundMusic(isNight: false, isGame: false);
@@ -512,16 +508,16 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onGameSelected: _startGame,
               ),
 
-            if (_showArcanoidGame)
-              ArcanoidWidget(
-                onFishEarned: _earnFishFromGame,
-                onGameOver: _endArcanoidGame,
-              ),
-              if (_showFlappyGame)
-              ArcanoidWidget(
-                onFishEarned: _earnFishFromGame,
-                onGameOver: _endFlappyGame,
-              )
+            // if (_showArcanoidGame)
+            //   ArcanoidWidget(
+            //     onFishEarned: _earnFishFromGame,
+            //     onGameOver: _endArcanoidGame,
+            //   ),
+            //   if (_showFlappyGame)
+            //   ArcanoidWidget(
+            //     onFishEarned: _earnFishFromGame,
+            //     onGameOver: _endFlappyGame,
+            //   )
           ],
 
         ),

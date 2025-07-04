@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game/services/audio_manager.dart';
 
 class GameSelector extends StatelessWidget {
   final VoidCallback onClose; //вызывается при закрытии окна
