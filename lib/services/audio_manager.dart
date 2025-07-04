@@ -21,19 +21,38 @@ class AudioManager {
 
   AudioManager._internal();
 
-  Future<void> playBackgroundMusic({bool isNight = false}) async {
-    final track = isNight ?
-    'audio/background_music_night.mp3' : 'audio/background_music.mp3';
+  Future<void> playBackgroundMusic({bool isNight = false, bool isGame = false}) async {
+    // Всегда сначала останавливаем текущую музыку
+    await stopBackgroundMusic();
 
-    if (_currentTrack == track && _isPlaying) return;
+    final track = isGame
+        ? 'audio/arkanoid_background.mp3'
+        : (isNight
+        ? 'audio/background_music_night.mp3'
+        : 'audio/background_music.mp3');
 
-    await _player.stop();
-    await _player.setReleaseMode(ReleaseMode.loop); //зацикливание
-    await _player.setVolume(0.3);
-    await _player.play(AssetSource(track));
+    try {
+      await _player.setReleaseMode(ReleaseMode.loop);
+      await _player.setVolume(0.3);
+      await _player.play(AssetSource(track));
 
-    _currentTrack = track;
-    _isPlaying = true;
+      _currentTrack = track;
+      _isPlaying = true;
+    } catch (e) {
+      print('Ошибка воспроизведения музыки: $e');
+    }
+  }
+
+  Future<void> stopBackgroundMusic() async {
+    if (_isPlaying) {
+      try {
+        await _player.stop();
+      } catch (e) {
+        print('Ошибка остановки музыки: $e');
+      }
+      _isPlaying = false;
+      _currentTrack = null;
+    }
   }
 
   Future<void> playSfx(String assetPath) async {
@@ -44,12 +63,6 @@ class AudioManager {
     } catch (e) {
       print('Ошибка SFХ: $e');
     }
-  }
-
-  Future<void> stopBackgroundMusic() async {
-    await _player.stop();
-    _isPlaying = false;
-    _currentTrack = null;
   }
 
   Future<void> setVolume(double volume) async {

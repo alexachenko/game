@@ -72,6 +72,8 @@ flutter:
     - assets/audio/tap.mp3
     - assets/audio/room_switching.mp3
     - assets/audio/evil_meow.mp3
+    - assets/audio/breaking_ice.mp3
+    - assets/audio/getting_fish.mp3
     - assets/images/icon.png
     - assets/images/background1.png
     - assets/images/background2.png
@@ -117,6 +119,7 @@ flutter:
     - assets/images/step2Right6.png
     - assets/audio/background_music.mp3
     - assets/audio/background_music_night.mp3
+    - assets/audio/arkanoid_background.mp3
     - assets/images/food0.png
     - assets/images/sleep0.png
     - assets/images/game0.png

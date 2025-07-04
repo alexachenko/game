@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:game/games/arcanoid/block.dart';
 import 'package:game/games/arcanoid/paddle.dart';
 import 'package:game/games/arcanoid/ball.dart';
+import 'package:game/services/audio_manager.dart';
 
 class ArcanoidGame {
+  final AudioManager _audioManager = AudioManager();
   final Function(int) onFishEarned;
   final VoidCallback onGameOver;
 
@@ -104,7 +106,14 @@ class ArcanoidGame {
           if (block.isComplex) {
             onFishEarned(1);
             score += 1;
+            _audioManager.playSfx('audio/getting_fish.mp3');
           }
+          else{
+            _audioManager.playSfx('audio/breaking_ice.mp3');
+          }
+        }
+        else{
+          _audioManager.playSfx('audio/breaking_ice.mp3');
         }
       }
     }
@@ -112,21 +121,22 @@ class ArcanoidGame {
     //проверка столкновения с ракеткой
     if (ball.isCollidingWith(paddle)) {
       ball.bounceOffPaddle(paddle);
+      _audioManager.playSfx('audio/breaking_ice.mp3');
     }
 
-    // Левый край
+    //левый край
     if (ball.position.dx - Ball.radius <= 0) {
       ball.velocity = Offset(-ball.velocity.dx, ball.velocity.dy);
       ball.position = Offset(Ball.radius, ball.position.dy);
     }
 
-    // Правый край
+    //правый край
     if (ball.position.dx + Ball.radius >= gameArea.width) {
       ball.velocity = Offset(-ball.velocity.dx, ball.velocity.dy);
       ball.position = Offset(gameArea.width - Ball.radius, ball.position.dy);
     }
 
-    // Верхний край
+    //верхний край
     if (ball.position.dy - Ball.radius <= 0) {
       ball.velocity = Offset(ball.velocity.dx, -ball.velocity.dy);
       ball.position = Offset(ball.position.dx, Ball.radius);

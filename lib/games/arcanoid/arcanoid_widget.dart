@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'arcanoid_game.dart';
 import 'block.dart';
+import 'package:game/services/audio_manager.dart';
 
 class ArcanoidWidget extends StatefulWidget {
   final Function(int) onFishEarned;
@@ -25,6 +26,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
   int _finalScore = 0;
   bool _showGameOverButtons = false;
   bool _showEndPanel = false;
+  final AudioManager _audioManager = AudioManager();
 
   void _handleGameOver() {
     if (_gameEnded) return;
@@ -46,10 +48,21 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
     });
 
   }
+  void _initializeGame() {
+    game = ArcanoidGame(
+      onFishEarned: widget.onFishEarned,
+      onGameOver: _handleGameOver,
+    );
+    _countdown = 3;
+    _gameEnded = false;
+    _gameStarted = false;
+    _showEndPanel = false;
+  }
 
   @override
   void initState() {
     super.initState();
+    _initializeGame();
     game = ArcanoidGame(
       onFishEarned: widget.onFishEarned,
       onGameOver: _handleGameOver,
@@ -86,21 +99,18 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
 
   void _restartGame() {
     setState(() {
-      game = ArcanoidGame(
-        onFishEarned: widget.onFishEarned,
-        onGameOver: _handleGameOver,
-      );
-      _countdown = 3;
-      _gameEnded = false;
-      _gameStarted = false;
-      _showEndPanel = false;
+      _initializeGame();
+      _audioManager.playBackgroundMusic(isGame: true);
       _startCountdown();
     });
   }
 
   @override
+  @override
   void dispose() {
     _animationController.dispose();
+    _audioManager.dispose();
+    game.blocks.clear();
     super.dispose();
   }
 
@@ -108,7 +118,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Фон игры
+        //фон игры
         Positioned.fill(
           child: Image.asset(
             'assets/images/arcanoid_background.png',
@@ -207,8 +217,21 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                         const SizedBox(width: 20),
                         _buildActionButton(
                           'Выйти',
-                          Colors.blueAccent,
-                              () => Navigator.of(context).pop(),
+                            Colors.blueAccent,
+                                () {
+                              // Сначала остановить игровую музыку
+                              _audioManager.stopBackgroundMusic();
+
+                              // Включить музыку главного меню
+                              _audioManager.playBackgroundMusic(isGame: false, isNight: false);
+
+                              // Закрыть экран игры после небольшой задержки
+                              Future.delayed(const Duration(milliseconds: 100), () {
+                                if (mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              });
+                            }
                         ),
                       ],
                     ),
