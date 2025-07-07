@@ -475,7 +475,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onGameOver: _endArcanoidGame,
               ),
               if (_showFlappyGame)
-              ArcanoidWidget(
+              FlappyGameWidget(
                 onFishEarned: _earnFishFromGame,
                 onGameOver: _endFlappyGame,
               )
