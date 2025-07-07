@@ -55,7 +55,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initHive();
-    _audioManager.playBackgroundMusic(isNight: false, isGame: false);
+    _audioManager.playBackgroundMusic(isNight: false);
     _loadBackground();
 
     _stateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -78,7 +78,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _catState.isSleeping = true;
       _catState.sleepProgress = 0;
       _isCatSleeping = true;
-      _audioManager.playBackgroundMusic(isNight: true, isGame: false); // Добавлено
+      _audioManager.playBackgroundMusic(isNight: true); // Добавлено
       _saveCatState();
     });
   }
@@ -109,7 +109,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         sleep: 100,
         game: 100,
         lastUpdated: DateTime.now(),
-        fishCount: 1, //начальное количество рыбок
+        fishCount: 3, //начальное количество рыбок
       );
     }
   }
@@ -146,7 +146,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       );
     }
     if (gameType == 'flappy') {
-      Navigator.push(
+        Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => FlappyGameWidget(
@@ -162,6 +162,11 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     }
   }
 
+  void _endArcanoidGame() {
+    setState(() {
+      _showArcanoidGame = false;
+    });
+  }
 
     void _endFlappyGame() {
       _audioManager.playBackgroundMusic(isNight: false, isGame: false);
@@ -272,7 +277,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _catState.sleepProgress = 0;
       _isCatSleeping = false;
       _catState.lastUpdated = DateTime.now();
-      _audioManager.playBackgroundMusic(isNight: false, isGame: false);
+      _audioManager.playBackgroundMusic(isNight: false);
       _saveCatState();
     });
   }

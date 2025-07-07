@@ -4,49 +4,57 @@ import 'package:game/games/flappy_cat/components/pipe.dart';
 import 'package:game/games/flappy_cat/configuration.dart';
 import 'package:game/games/flappy_cat/flappy_game.dart';  
 import 'dart:math';
-import 'package:flutter/material.dart';
 
 class PipeGroup extends PositionComponent with HasGameRef<FlappyGame> {
   PipeGroup();
 
   final _random = Random();
 
-  // Можно заранее не создавать список, а брать диапазон полностью случайно
+@override
+Future<void> onLoad() async {
 
-  @override
-  Future<void> onLoad() async {
-    size = Vector2(gameRef.size.x, gameRef.size.y);
-    position.x = gameRef.size.x;
+    while (gameRef.size.y == 0) {
+      await Future.delayed(const Duration(milliseconds: 16));
+    }
 
-    final gap = 225 + _random.nextDouble() * (270 - 225);
+    size = gameRef.size.clone();
+    
+  size = Vector2(gameRef.size.x, gameRef.size.y);
+  position.x = gameRef.size.x;
 
-    // Допустимый диапазон центра зазора — расширяем за края экрана на ±50 пикселей,
-    // чтобы трубы могли «выходить» за экран
-    final minCenterY = gap / 2 - 50;
-    final maxCenterY = gameRef.size.y - gap / 2 + 50;
+  final gap = 250.0 + _random.nextDouble() * 50; 
 
-    // Выбираем случайный центр зазора в расширенном диапазоне
-    final centerY = minCenterY + _random.nextDouble() * (maxCenterY - minCenterY);
+  final centerY = gap / 2 + _random.nextDouble() * (gameRef.size.y - gap);
 
-    final topPipeHeight = centerY - gap / 2;
-    final bottomPipeHeight = gameRef.size.y - (centerY + gap / 2);
+  final topPipeHeight = centerY - gap / 2;
+  final bottomPipeHeight = gameRef.size.y - (centerY + gap / 2);
 
-    addAll([
-      Pipe(pipePosition: PipePosition.top, height: topPipeHeight)
-        ..position = Vector2(0, 0),
-      Pipe(pipePosition: PipePosition.bottom, height: bottomPipeHeight)
-        ..position = Vector2(0, centerY + gap / 2),
-    ]);
-  }
+  addAll([
+    Pipe(pipePosition: PipePosition.top, height: topPipeHeight)
+      ..position = Vector2(0, 0),
+    Pipe(pipePosition: PipePosition.bottom, height: bottomPipeHeight)
+      ..position = Vector2(0, centerY + gap / 2),
+  ]);
+}
 
   @override
   void update(double dt) {
     super.update(dt);
     position.x -= Config.gameSpeed * dt;
     
-    if (position.x < -25) {
+    if (position.x < -30) {
       removeFromParent();
-      debugPrint('Removed');
+      updateScore();
     }
+
+    if (gameRef.isHit) {
+      removeFromParent();
+      gameRef.isHit = false;
+    }
+  }
+
+  void updateScore() {
+    gameRef.cat.score += 1;
+    gameRef.onFishEarned(1);
   }
 }
