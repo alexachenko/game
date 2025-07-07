@@ -6,11 +6,13 @@ import 'package:game/games/flappy_cat/configuration.dart';
 import 'package:game/games/flappy_cat/flappy_game.dart';  
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:game/services/audio_manager.dart';
 
 class Cat extends SpriteGroupComponent<CatMovement> with HasGameRef<FlappyGame>, CollisionCallbacks { 
-  Cat();
-
+  final AudioManager _audioManager = AudioManager();
   int score = 0;
+
+  Cat();
 
   @override
   Future<void> onLoad() async {
@@ -70,7 +72,8 @@ void reset() {
 }
 
 void gameOver() {
-   size = Vector2(60,50);
+  size = Vector2(60,50);
+  _audioManager.playSfx('audio/die.mp3');
   current = CatMovement.died;
   gameRef.overlays.add('gameOver');
   gameRef.pauseEngine();

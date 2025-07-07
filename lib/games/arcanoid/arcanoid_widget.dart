@@ -123,11 +123,17 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
+@override
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      _audioManager.stopBackgroundMusic();           
+      _audioManager.playBackgroundMusic();            
+      return true;                                     
+    },
+    child: Stack(
       children: [
-        //фон игры
+        // фон игры
         Positioned.fill(
           child: Image.asset(
             'assets/images/arcanoid_background.png',
@@ -135,7 +141,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
           ),
         ),
 
-        //игровое поле
+        // игровое поле
         if (_gameStarted)
           LayoutBuilder(
             builder: (context, constraints) {
@@ -171,7 +177,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
             },
           ),
 
-        //таймер
+        // таймер
         if (!_gameStarted && !_gameEnded)
           Center(
             child: Text(
@@ -183,7 +189,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
             ),
           ),
 
-        //завершение игры
+        // завершение игры
         if (_gameEnded)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
@@ -199,8 +205,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-    (game.score >= Block.fishBlocksCount) ? 'Победа!' : 'Игра завершена :(',
-                      style: TextStyle(
+                      (game.score >= Block.fishBlocksCount)
+                          ? 'Победа!'
+                          : 'Игра завершена :(',
+                      style: const TextStyle(
                         fontSize: 28,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -226,10 +234,12 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                         const SizedBox(width: 20),
                         _buildActionButton(
                           'Выйти',
-                            Colors.blueAccent,
-                                () {
-                                  widget.onGameOver();
-                                }
+                          Colors.blueAccent,
+                          () {
+                            _audioManager.stopBackgroundMusic();
+                            _audioManager.playBackgroundMusic();
+                            widget.onGameOver();
+                          },
                         ),
                       ],
                     ),
@@ -239,8 +249,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
             ),
           ),
       ],
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildActionButton(String text, Color color, VoidCallback onPressed) {
     return ElevatedButton(

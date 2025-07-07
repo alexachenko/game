@@ -8,16 +8,17 @@ import 'package:game/games/flappy_cat/components/pipe_group.dart';
 import 'dart:async';
 import 'dart:async' as async;
 import 'package:game/games/flappy_cat/configuration.dart';
+import 'package:game/services/audio_manager.dart';
 
 class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   late Cat cat;
   late async.Timer _spawner;
   DateTime _lastRestarted = DateTime.now();
   late TextComponent score;
-
   bool isHit = false;
   final VoidCallback onGameOver;
   final Function(int fish) onFishEarned;
+  final AudioManager _audioManager = AudioManager();
 
   FlappyGame({
     required this.onFishEarned,
@@ -35,12 +36,10 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
       score,
     ]);
 
-    // Ждём, пока размеры игры не будут известны
     while (size.x == 0 || size.y == 0) {
       await Future.delayed(const Duration(milliseconds: 16));
     }
 
-    // Стартуем генератор колонн (через tryAddPipeGroup)
     _lastRestarted = DateTime.now();
     _spawner = async.Timer.periodic(
       Duration(milliseconds: (Config.pipeInterval * 1000).toInt()),
@@ -52,7 +51,7 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
     final elapsed = DateTime.now().difference(_lastRestarted).inMilliseconds;
 
     if (elapsed < 300) {
-      return; // защита от раннего тика
+      return; 
     }
 
     add(PipeGroup());
@@ -76,6 +75,7 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   void onTap() {
     super.onTap();
     cat.fly();
+    _audioManager.playSfx('audio/flap.mp3', flag: true);
   }
 
   void restart() {
