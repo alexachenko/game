@@ -32,8 +32,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   bool _showBackgroundSelection = false;
   bool _showSkinSelection = false;
   bool _showGameSelector = false;
-  bool _showArcanoidGame = false;
-  bool _showFlappyGame = false;
   late CatState _catState;
   Timer? _stateTimer;
   final Map<String, double> _lastDisplayedValues = {
@@ -465,7 +463,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
               ),
             ),
 
-            if (!_showSkinSelection)
+            if (!_showSkinSelection && _currentBackground=='assets/images/background1.png')
               Positioned(
                 right: 80,
                 top: 90,
