@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:game/services/audio_manager.dart';
-import 'package:game/screens/main_screen.dart';
 
 class CatWidget extends StatefulWidget {
   final Function(TapDownDetails)? onTapDown;

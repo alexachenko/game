@@ -3,6 +3,7 @@ import 'package:game/games/flappy_cat/screens/game_over_screen.dart';
 import 'package:game/games/flappy_cat/screens/main_menu_screen.dart';
 import 'flappy_game.dart';
 import 'package:flame/game.dart';
+import 'package:game/services/audio_manager.dart';
 
 class FlappyGameWidget extends StatefulWidget  {
   final Function(int) onFishEarned;
@@ -36,19 +37,27 @@ class _FlappyGameWidgetState extends State<FlappyGameWidget> {
   }
 @override
 Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        GameWidget(
-          game: game,
-          initialActiveOverlays: const [MainMenuScreen.id],
-          overlayBuilderMap: {
-            'mainMenu': (context, _) => MainMenuScreen(game: game),
-            'gameOver': (context, _) => GameOverScreen(game: game),
-          },
-        ),   
-      ]
-    )
+  return WillPopScope(
+    onWillPop: () async {
+      AudioManager().stopBackgroundMusic();
+      AudioManager().playBackgroundMusic();
+      return true;
+    },
+    child: Scaffold(
+      body: Stack(
+        children: [
+          GameWidget(
+            game: game,
+            initialActiveOverlays: const [MainMenuScreen.id],
+            overlayBuilderMap: {
+              'mainMenu': (context, _) => MainMenuScreen(game: game),
+              'gameOver': (context, _) => GameOverScreen(game: game),
+            },
+          ),   
+        ]
+      ),
+    ),
   );
 }
+
   }

@@ -123,130 +123,136 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
     super.dispose();
   }
 
-  @override
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false; // Запрещаем навигацию назад
-      },
-      child: Stack(
-        children: [
-          // Фон игры
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/arcanoid_background.png',
-              fit: BoxFit.cover,
+@override
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      _audioManager.stopBackgroundMusic();           
+      _audioManager.playBackgroundMusic();            
+      return true;                                     
+    },
+    child: Stack(
+      children: [
+        // фон игры
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/arcanoid_background.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        // игровое поле
+        if (_gameStarted)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (game.gameArea == Size.zero) {
+                game.initialize(constraints.biggest);
+              }
+
+              return GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    game.paddle.updatePosition(details.localPosition.dx);
+                  });
+                },
+                child: Stack(
+                  children: [
+                    ...game.blocks.map((block) => block.build()),
+                    game.paddle.build(),
+                    game.ball.build(),
+                    Positioned(
+                      top: 20,
+                      right: 20,
+                      child: Text(
+                        'Счет: ${game.score}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+        // таймер
+        if (!_gameStarted && !_gameEnded)
+          Center(
+            child: Text(
+              '$_countdown',
+              style: const TextStyle(
+                fontSize: 100,
+                color: Colors.white,
+              ),
             ),
           ),
 
-          // Игровое поле
-          if (_gameStarted)
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (game.gameArea == Size.zero) {
-                  game.initialize(constraints.biggest);
-                }
-
-                return GestureDetector(
-                  onHorizontalDragUpdate: (details) {
-                    setState(() {
-                      game.paddle.updatePosition(details.localPosition.dx);
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      ...game.blocks.map((block) => block.build()),
-                      game.paddle.build(),
-                      game.ball.build(),
-                      Positioned(
-                        top: 20,
-                        right: 20,
-                        child: Text(
-                          'Счет: ${game.score}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                          ),
-                        ),
+        // завершение игры
+        if (_gameEnded)
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: _showEndPanel ? 1.0 : 0.0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      (game.score >= Block.fishBlocksCount)
+                          ? 'Победа!'
+                          : 'Игра завершена :(',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-          // Таймер
-          if (!_gameStarted && !_gameEnded)
-            Center(
-              child: Text(
-                '$_countdown',
-                style: const TextStyle(
-                  fontSize: 100,
-                  color: Colors.white,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      'Счёт: $_finalScore',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildActionButton(
+                          'Начать заново',
+                          Colors.purple,
+                          _restartGame,
+                        ),
+                        const SizedBox(width: 20),
+                        _buildActionButton(
+                          'Выйти',
+                          Colors.blueAccent,
+                          () {
+                            _audioManager.stopBackgroundMusic();
+                            _audioManager.playBackgroundMusic();
+                            widget.onGameOver();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
+      ],
+    ),
+  );
+}
 
-          // Завершение игры
-          if (_gameEnded)
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 300),
-              opacity: _showEndPanel ? 1.0 : 0.0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        (game.score >= Block.fishBlocksCount) ? 'Победа!' : 'Игра завершена :(',
-                        style: TextStyle(
-                          fontSize: 28,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        'Счёт: $_finalScore',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 25),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildActionButton(
-                            'Начать заново',
-                            Colors.purple,
-                            _restartGame,
-                          ),
-                          const SizedBox(width: 20),
-                          _buildActionButton(
-                            'Выйти',
-                            Colors.blueAccent,
-                                () {
-                              widget.onGameOver();
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildActionButton(String text, Color color, VoidCallback onPressed) {
     return ElevatedButton(

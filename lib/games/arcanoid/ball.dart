@@ -8,6 +8,7 @@ class Ball {
 
   late Offset position;
   late Offset velocity;
+  bool isInitialized = false; 
 
   void initialize(Paddle paddle) {
     position = Offset(
@@ -15,9 +16,11 @@ class Ball {
       paddle.positionY - radius * 2,
     );
     velocity = Offset(5.0, -5.0); //cкорость
+    isInitialized = true;
   }
 
   void update(Paddle paddle, Size gameArea) {
+    if (!isInitialized) return;
     position += velocity;
   }
 

@@ -4,8 +4,10 @@ import 'package:game/games/flappy_cat/components/pipe.dart';
 import 'package:game/games/flappy_cat/configuration.dart';
 import 'package:game/games/flappy_cat/flappy_game.dart';  
 import 'dart:math';
+import 'package:game/services/audio_manager.dart';
 
 class PipeGroup extends PositionComponent with HasGameRef<FlappyGame> {
+  final AudioManager _audioManager = AudioManager();
   PipeGroup();
 
   final _random = Random();
@@ -56,5 +58,6 @@ Future<void> onLoad() async {
   void updateScore() {
     gameRef.cat.score += 1;
     gameRef.onFishEarned(1);
+    _audioManager.playSfx('audio/point.mp3');
   }
 }

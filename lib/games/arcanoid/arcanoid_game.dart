@@ -25,7 +25,7 @@ class ArcanoidGame {
   bool _isGameEnded = false; //добавляем флаг завершения игры
 
   void update() {
-    if (_isGameEnded) return; //не обновляем, если игра завершена
+    if (_isGameEnded || !ball.isInitialized) return; //не обновляем, если игра завершена
 
     ball.update(paddle, gameArea);
     _checkCollisions();

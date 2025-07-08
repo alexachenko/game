@@ -75,6 +75,10 @@ flutter:
     - assets/audio/breaking_ice.mp3
     - assets/audio/getting_fish.mp3
     - assets/audio/hit.mp3
+    - assets/audio/background_flappy.mp3
+    - assets/audio/point.mp3
+    - assets/audio/die.mp3
+    - assets/audio/flap.mp3
     - assets/images/icon.png
     - assets/images/background1.png
     - assets/images/background2.png

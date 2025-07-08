@@ -11,7 +11,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vibration/vibration.dart';
 import 'package:game/games/game_selector.dart';
 import 'package:game/games/arcanoid/arcanoid_widget.dart';
-import 'package:game/games/flappy_cat/flappy_game.dart';
 import 'package:game/games/flappy_cat/flappy_widget.dart';
 
 class TamagotchiScreen extends StatefulWidget {
@@ -128,9 +127,9 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
 
   void _startGame(String gameType) {
     _audioManager.stopBackgroundMusic();
-    _audioManager.playBackgroundMusic(isNight: false, isGame: true);
 
     if (gameType == 'arcanoid') {
+      _audioManager.playBackgroundMusic(isNight: false, isGame: true, isFlappy: false);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -138,7 +137,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
             onFishEarned: _earnFishFromGame,
             onGameOver: () {
               _audioManager.stopBackgroundMusic();
-              _audioManager.playBackgroundMusic(isNight: false, isGame: false);
+              _audioManager.playBackgroundMusic(isNight: false, isGame: false, isFlappy: false);
               Navigator.pop(context);
             },
           ),
@@ -146,6 +145,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       );
     }
     if (gameType == 'flappy') {
+      _audioManager.playBackgroundMusic(isNight: false, isGame: false, isFlappy: true);
         Navigator.push(
         context,
         MaterialPageRoute(
@@ -153,26 +153,13 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
             onFishEarned: _earnFishFromGame,
             onGameOver: () {
               _audioManager.stopBackgroundMusic();
-              _audioManager.playBackgroundMusic(isNight: false, isGame: false);
+              _audioManager.playBackgroundMusic(isNight: false, isGame: false, isFlappy: false);
               Navigator.pop(context);
             },
           ),
         ),
       );
     }
-  }
-
-  void _endArcanoidGame() {
-    setState(() {
-      _showArcanoidGame = false;
-    });
-  }
-
-    void _endFlappyGame() {
-      _audioManager.playBackgroundMusic(isNight: false, isGame: false);
-    setState(() {
-      _showFlappyGame = false;
-    });
   }
 
   void _earnFishFromGame(int count) {
