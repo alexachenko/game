@@ -71,14 +71,13 @@ void reset() {
   score = 0;
 }
 
-void gameOver() {
-  size = Vector2(60,50);
-  _audioManager.playSfx('audio/die.mp3');
-  current = CatMovement.died;
-  gameRef.overlays.add('gameOver');
-  gameRef.pauseEngine();
-  game.isHit = true;
-}
+  void gameOver() {
+    size = Vector2(60,50);
+    _audioManager.playSfx('audio/die.mp3');
+    current = CatMovement.died;
+    gameRef.showGameOver();
+    game.isHit = true;
+  }
 
   @override 
   void update (double dt) {

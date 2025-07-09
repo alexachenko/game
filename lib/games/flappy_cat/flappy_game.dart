@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:async' as async;
 import 'package:game/games/flappy_cat/configuration.dart';
 import 'package:game/services/audio_manager.dart';
+import 'package:game/games/flappy_cat/screens/game_over_screen.dart';
 
 class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   late Cat cat;
@@ -48,12 +49,10 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   }
 
   void tryAddPipeGroup() {
+    if (paused) return; // Не создавать PipeGroup, если игра на паузе
+
     final elapsed = DateTime.now().difference(_lastRestarted).inMilliseconds;
-
-    if (elapsed < 300) {
-      return; 
-    }
-
+    if (elapsed < 300) return;
     add(PipeGroup());
   }
 
@@ -108,8 +107,22 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   }
 
   void pauseGame() {
-  pauseEngine();
-  _spawner.cancel(); 
-}
+    pauseEngine();
+    _spawner.cancel(); // Остановить таймер
+  }
+
+  void resumeGame() {
+    resumeEngine();
+    _lastRestarted = DateTime.now(); // Сбросить время последнего рестарта
+    _spawner = async.Timer.periodic(
+      Duration(milliseconds: (Config.pipeInterval * 1000).toInt()),
+          (_) => tryAddPipeGroup(),
+    );
+  }
+  void showGameOver() {
+    overlays.add(GameOverScreen.id);
+    pauseGame();
+    children.whereType<PipeGroup>().forEach((p) => p.removeFromParent()); // Очистка труб
+  }
 
 }
