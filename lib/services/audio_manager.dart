@@ -30,7 +30,7 @@ class AudioManager {
     if (globalMusicShutdown) {
       await stopBackgroundMusic();
     } else {
-      // Определяем текущую музыку
+      // определяем текущую музыку
       await playBackgroundMusic(
         isNight: _currentTrack == 'audio/background_music_night.mp3',
         isGame: _currentTrack == 'audio/arkanoid_background.mp3',
@@ -89,7 +89,7 @@ class AudioManager {
       await player.setVolume(flag ? 0.3 : 1.0);
       await player.play(AssetSource(assetPath));
 
-      // Освободить ресурсы после проигрывания
+      // освободить ресурсы после проигрывания
       player.onPlayerComplete.listen((_) async {
         await player.dispose();
       });

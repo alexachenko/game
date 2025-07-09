@@ -78,7 +78,7 @@ class ArcanoidGame {
           type = BlockType.blue;
         }
 
-        bool isComplex = row % 2 == 0;
+        bool isComplex = (col + row ) % 4 == 0;
 
         blocks.add(Block(
           position: Offset(
